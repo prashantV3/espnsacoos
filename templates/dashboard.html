@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESPN SACCOS | Financial Ledger & Loan Management</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        apex: {
+                            canvas: '#090d16',
+                            sidebar: '#0d1117',
+                            card: '#111622',
+                            cardHover: '#151b2a',
+                            border: '#1e2638',
+                            input: '#0b0e14',
+                            inputBorder: '#222b3e',
+                            green: '#10b981',
+                            greenDark: '#059669',
+                            muted: '#64748b',
+                            text: '#f1f5f9',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+        .nav-item-active {
+            background-color: #1a2234 !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+        .nav-item-active i {
+            color: #10b981 !important;
+        }
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e2638;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a354d;
+        }
+    </style>
+</head>
+<body class="bg-[#090d16] text-gray-200 flex min-h-screen antialiased selection:bg-emerald-500 selection:text-black">
+
+    <!-- LEFT SIDEBAR (Dark matte Apex theme exactly replicating the screenshot) -->
+    <aside class="w-64 bg-[#0d1117] border-r border-[#1e2638] flex flex-col fixed inset-y-0 z-40 select-none">
+        
+        <!-- Logo Header -->
+        <div class="h-16 flex items-center px-5 gap-3 border-b border-[#1e2638]">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-black font-extrabold text-base shadow-sm shadow-emerald-500/20">
+                <i class="fa-solid fa-vault text-[#0d1117] text-sm"></i>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-lg tracking-tight">ESPN</span>
+                <span class="text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 px-1.5 py-0.5 rounded tracking-wide">SACCOS</span>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+            
+            <!-- Category 1: DASHBOARDS -->
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Dashboards</div>
+                <div class="space-y-1">
+                    <button onclick="showTab('overview')" id="nav-overview" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-table-cells-large w-4 text-gray-400"></i>
+                        <span>Overview</span>
+                    </button>
+                    <button onclick="showTab('ledger-view')" id="nav-ledger-view" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-chart-line w-4 text-gray-400"></i>
+                        <span>Analytics</span>
+                    </button>
+                    <button onclick="showTab('trial-balance')" id="nav-trial-balance" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-scale-balanced w-4 text-gray-400"></i>
+                        <span>Trial Balance</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category 2: MEMBERSHIP & LOANS -->
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Membership & Loans</div>
+                <div class="space-y-1">
+                    <button onclick="showTab('new-member')" id="nav-new-member" class="nav-item nav-item-active w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-300 transition text-left">
+                        <i class="fa-solid fa-user-plus w-4 text-emerald-400"></i>
+                        <span>Register Member</span>
+                    </button>
+                    <button onclick="showTab('new-loan')" id="nav-new-loan" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-file-invoice-dollar w-4 text-gray-400"></i>
+                        <span>Primary Loans</span>
+                    </button>
+                    <button onclick="showTab('emergency-advance')" id="nav-emergency-advance" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-bolt w-4 text-gray-400"></i>
+                        <span>Emergency Advances</span>
+                    </button>
+                    <button onclick="showTab('record-payment')" id="nav-record-payment" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-receipt w-4 text-gray-400"></i>
+                        <span>Record Payment</span>
+                    </button>
+                    <button onclick="showTab('record-deposit')" id="nav-record-deposit" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-piggy-bank w-4 text-gray-400"></i>
+                        <span>Record Member Deposit</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category 3: APPS -->
+            <div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Apps</div>
+                <div class="space-y-1">
+                    <button onclick="showTab('calculator')" id="nav-calculator" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-calculator w-4 text-gray-400"></i>
+                        <span>EMI Calculator</span>
+                    </button>
+                    <a href="/admin/" target="_blank" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-shield-halved w-4 text-gray-400"></i>
+                            <span>Django Admin</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-600"></i>
+                    </a>
+                    <a href="/api/v1/reports/trial-balance/" target="_blank" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-code w-4 text-gray-400"></i>
+                            <span>REST API (JSON)</span>
+                        </span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-600"></i>
+                    </a>
+                    <button onclick="showTab('profile')" id="nav-profile" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-key w-4 text-gray-400"></i>
+                        <span>Profile & Security</span>
+                    </button>
+                </div>
+            </div>
+
+        </nav>
+
+        <!-- Current User Avatar Pill at bottom of sidebar -->
+        <div class="p-3 border-t border-[#1e2638] bg-[#0b0e14]">
+            <div class="flex items-center justify-between">
+                <div onclick="showTab('profile')" class="flex items-center gap-2.5 overflow-hidden cursor-pointer hover:opacity-80 transition flex-1">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {% if current_user %}{{ current_user.username|slice:":2"|upper }}{% else %}ME{% endif %}
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-white truncate">{% if current_user %}{{ current_user.get_full_name|default:current_user.username }}{% else %}Member Portal{% endif %}</p>
+                        <p class="text-[10px] text-emerald-400 truncate">{% if current_user %}{{ current_user.get_role_display }}{% if current_user.must_change_password %} &bull; <span class="text-amber-400 font-bold">New Pass Req</span>{% endif %}{% else %}Member Account{% endif %}</p>
+                    </div>
+                </div>
+                <a href="/admin/logout/" class="text-gray-500 hover:text-gray-300 p-1.5 transition" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                </a>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN APP CANVAS (Clean dark theme matching screenshot) -->
+    <div class="ml-64 flex-1 flex flex-col min-h-screen">
+        
+        <!-- Top Yellow Notice Banner -->
+        <div class="bg-[#1e1c14] border-b border-amber-900/40 px-6 py-2 text-xs text-amber-200/90 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-400 text-xs"></i>
+                <span><strong class="text-amber-300 font-semibold">ESPN SACCOS Live Ledger</strong> Real-time Double-Entry Financial Tracking, Loan EMI Scheduling & Advances.</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-amber-400/60 hover:text-amber-300 text-xs font-bold px-1.5">✕</button>
+        </div>
+
+        <!-- Top Green Feature Banner -->
+        <div class="bg-[#0b1a14] border-b border-emerald-900/50 px-6 py-2 text-xs text-emerald-200 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-4 h-4 rounded bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px]">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <span><strong class="text-emerald-300 font-semibold">ESPN SACCOS Portal</strong> Reducing-balance loan engine and interest-free emergency advances.</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="showTab('new-loan')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-2.5 py-0.5 rounded text-[11px] transition">Apply Loan</button>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-emerald-400/60 hover:text-emerald-300 text-xs font-bold">✕</button>
+            </div>
+        </div>
+
+        <!-- Top Navigation Bar (Header) -->
+        <header class="h-16 bg-[#0d1117] border-b border-[#1e2638] px-8 flex items-center justify-between sticky top-0 z-30">
+            
+            <!-- Search bar with Ctrl+K shortcut -->
+            <div class="relative w-80">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                <input type="text" placeholder="Search..." class="bg-[#111622] border border-[#222b3e] text-gray-200 text-xs rounded-lg pl-9 pr-12 py-2 w-full focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 placeholder-gray-500 transition">
+                <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 bg-[#1b2233] border border-[#26324b] text-gray-400 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded">Ctrl+K</kbd>
+            </div>
+
+            <!-- Right Controls: Status, Org, Bell, Theme, Profile -->
+            <div class="flex items-center gap-4">
+                
+                <!-- Online Status badge -->
+                <div class="flex items-center gap-2 bg-[#111622] border border-[#222b3e] px-2.5 py-1 rounded-full text-xs font-medium text-emerald-400">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>1737 online</span>
+                </div>
+
+                <!-- Org Dropdown badge -->
+                <div class="flex items-center gap-2 border border-[#222b3e] rounded-lg px-2.5 py-1 bg-[#111622] text-xs font-semibold text-gray-200 cursor-pointer hover:bg-[#161c2a] transition">
+                    <span class="w-5 h-5 rounded bg-emerald-950 text-emerald-400 text-[10px] font-bold flex items-center justify-center border border-emerald-800/50">ES</span>
+                    <span>ESPN SACCOS</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-500 ml-1"></i>
+                </div>
+
+                <!-- Notification Bell with Red Badge 15 -->
+                <button class="relative w-8 h-8 rounded-full border border-[#222b3e] bg-[#111622] flex items-center justify-center text-gray-400 hover:text-white transition">
+                    <i class="fa-regular fa-bell text-xs"></i>
+                    <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#0d1117]">
+                        15
+                    </span>
+                </button>
+
+                <!-- Light/Dark toggle button -->
+                <button class="w-8 h-8 rounded-full border border-[#222b3e] bg-[#111622] flex items-center justify-center text-gray-400 hover:text-white transition">
+                    <i class="fa-regular fa-sun text-xs"></i>
+                </button>
+
+                <!-- User Profile Pill -->
+                <div onclick="showTab('profile')" class="flex items-center gap-2 pl-2 border-l border-[#222b3e] cursor-pointer hover:opacity-80 transition" title="View Profile & Security">
+                    <div class="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                        {% if current_user %}{{ current_user.username|slice:":2"|upper }}{% else %}ME{% endif %}
+                    </div>
+                    <span class="text-xs font-bold text-gray-200">{% if current_user %}{{ current_user.username }}{% else %}Profile{% endif %}</span>
+                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-500"></i>
+                </div>
+
+            </div>
+        </header>
+
+        <!-- Flash Action Alerts -->
+        {% if action_status %}
+        <div class="mx-8 mt-6">
+            {% if action_status == 'success' %}
+            <div class="bg-emerald-950/60 border border-emerald-800 text-emerald-300 px-5 py-3 rounded-xl flex items-center justify-between text-xs font-medium">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                    <span>{{ action_message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+            {% else %}
+            <div class="bg-rose-950/60 border border-rose-800 text-rose-300 px-5 py-3 rounded-xl flex items-center justify-between text-xs font-medium">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-circle-exclamation text-rose-400 text-sm"></i>
+                    <span>{{ action_message }}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-rose-400 hover:text-white text-sm font-bold">✕</button>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- First-Time Login Password Change Notice -->
+        {% if current_user and current_user.must_change_password %}
+        <div class="mx-8 mt-6">
+            <div class="bg-amber-950/70 border border-amber-800/80 rounded-xl p-5 text-amber-200">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-900/60 text-amber-400 flex items-center justify-center text-lg border border-amber-700/50 flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">First-Time Login Security Requirement</h3>
+                            <p class="text-xs text-amber-300/90 mt-0.5">Your account is using a temporary password. Please set a new permanent password below to complete setup.</p>
+                        </div>
+                    </div>
+                    <button onclick="showTab('profile')" class="bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-lg text-xs transition flex items-center gap-2">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Change Password Now</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Body Canvas -->
+        <main class="p-8 space-y-6 flex-1 w-full mx-auto">
+            
+            <!-- ============================================================== -->
+            <!-- TAB 1: REGISTER SACCOS MEMBER                                  -->
+            <!-- ============================================================== -->
+            <div id="section-new-member" class="tab-pane space-y-6">
+                
+                <!-- Breadcrumbs & Heading -->
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Members</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">Register Member</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Register Member</h1>
+                    <p class="text-xs text-gray-400 mt-1">Register a new cooperative member eligible for savings deposits and loan facilities.</p>
+                </div>
+
+                <form method="POST" action="/" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_member">
+
+                    <!-- Panel 1: Profile (Dark Rounded Card matching screenshot) -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Member Profile</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Name & Email Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                        First Name <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="text" name="first_name" required placeholder="First name" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                        Last Name / Surname <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="text" name="last_name" required placeholder="Last name" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Phone & Organization Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                        Email Address <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i class="fa-regular fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                                        <input type="email" name="email" required placeholder="member@espnsaccos.org" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg pl-9 pr-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Phone Number</label>
+                                    <input type="text" name="phone_number" placeholder="+977-98xxxxxxxx" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                </div>
+                            </div>
+
+                            <!-- Employer / Department -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Employer / Department</label>
+                                <input type="text" placeholder="Organization, branch or department" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                            </div>
+
+                            <!-- Avatar / KYC File Upload -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Member KYC / ID Document</label>
+                                <div class="flex items-center gap-3">
+                                    <label class="cursor-pointer bg-[#0b0e14] border border-[#222b3e] hover:border-gray-600 text-gray-300 px-3.5 py-2 rounded-lg text-xs font-medium transition inline-flex items-center gap-2">
+                                        <i class="fa-solid fa-cloud-arrow-up text-gray-500 text-xs"></i>
+                                        <span>Choose File</span>
+                                        <input type="file" class="hidden">
+                                    </label>
+                                    <span class="text-xs text-gray-500">Citizenship / National ID document</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Address (Dark Rounded Card matching screenshot) -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Permanent Address</h2>
+                        
+                        <div class="space-y-4">
+                            <!-- Street Address -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Street Address</label>
+                                <input type="text" name="address" placeholder="Street, Ward, Municipality" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                            </div>
+
+                            <!-- City & Country Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">City / District</label>
+                                    <input type="text" name="city" placeholder="City or District" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Country</label>
+                                    <input type="text" name="country" placeholder="Country" value="Nepal" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 placeholder-gray-600 transition outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>Register Member</span>
+                        </button>
+                        <button type="reset" class="bg-transparent border border-[#222b3e] text-gray-400 hover:text-white px-5 py-2.5 rounded-lg text-xs transition">
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 2: OVERVIEW (ANALYTICS, 4 KPI CARDS & CHARTS)             -->
+            <!-- ============================================================== -->
+            <div id="section-overview" class="tab-pane hidden space-y-6">
+                
+                <!-- Page Title Row -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+                        <p class="text-xs text-gray-400 mt-1">Welcome back, Demo. Here's what's happening with organizational funds.</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="showTab('record-payment')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Record Payment</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 KPI METRIC CARDS (Apex style with sparkline trend) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Card 1: Total Liquid Capital -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Total Revenue / Liquid</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-950/80 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-800/40">
+                                    $
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ cash_balance|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
+                                    <span>↗</span> +20.1% from last month
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-emerald-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,22 Q25,18 40,10 T80,8 T100,2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Active Members -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Active Members</span>
+                                <div class="w-7 h-7 rounded-lg bg-blue-950/80 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-800/40">
+                                    <i class="fa-solid fa-user-group text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">{{ members_count }}</h3>
+                                <p class="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
+                                    <span>↗</span> +180.1% from last month
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-blue-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,20 Q30,19 60,15 T100,5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Loans Disbursed -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Loans Receivable</span>
+                                <div class="w-7 h-7 rounded-lg bg-purple-950/80 text-purple-400 flex items-center justify-center text-xs font-bold border border-purple-800/40">
+                                    <i class="fa-solid fa-cart-shopping text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ loans_receivable|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-purple-400 mt-1 flex items-center gap-1">
+                                    <span>↗</span> +19% from last month
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-purple-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,23 Q35,21 65,14 T100,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Net Interest Income -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Total Interest Earned</span>
+                                <div class="w-7 h-7 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center text-xs font-bold border border-amber-800/40">
+                                    <i class="fa-solid fa-chart-line text-[10px]"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ interest_income|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-amber-400 mt-1 flex items-center gap-1">
+                                    <span>↗</span> +201 from last month
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-amber-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,22 Q25,20 50,14 T80,10 T100,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 2 MAIN INTERACTIVE CHARTS (Exact Layout from Screenshot) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Chart 1: Revenue Line Graph (Spans 2 columns) -->
+                    <div class="lg:col-span-2 bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="text-base font-bold text-white tracking-tight">Revenue</h2>
+                                <p class="text-xs text-gray-400">Gross loan disbursals and repayments by day</p>
+                            </div>
+                            <!-- Time interval buttons -->
+                            <div class="flex items-center bg-[#0b0e14] border border-[#222b3e] rounded-lg p-0.5 text-xs font-medium">
+                                <button class="bg-emerald-600 text-white px-3 py-1 rounded text-[11px] font-semibold">7d</button>
+                                <button class="text-gray-400 hover:text-white px-3 py-1 text-[11px]">30d</button>
+                                <button class="text-gray-400 hover:text-white px-3 py-1 text-[11px]">90d</button>
+                            </div>
+                        </div>
+
+                        <!-- Legend indicators -->
+                        <div class="flex items-center gap-4 text-xs font-medium text-gray-400 mb-2">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-gray-300">Revenue</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                <span class="text-gray-300">Orders</span>
+                            </span>
+                        </div>
+
+                        <!-- Canvas for Chart.js -->
+                        <div class="relative h-64 w-full">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Traffic Sources Doughnut Chart (1 column) -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-white tracking-tight">Portfolio Allocation</h2>
+                            <p class="text-xs text-gray-400">Where organizational capital is deployed</p>
+                        </div>
+
+                        <!-- Doughnut Canvas -->
+                        <div class="relative h-48 w-full my-3 flex items-center justify-center">
+                            <canvas id="trafficChart"></canvas>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                <span class="text-2xl font-bold text-white">100%</span>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Total</span>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown list -->
+                        <div class="space-y-2 text-xs">
+                            <div class="flex items-center justify-between text-gray-300">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span>Liquid Cash & Bank</span>
+                                </span>
+                                <span class="font-bold text-white">{{ pct_cash }}%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-gray-300">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    <span>Loans Receivable</span>
+                                </span>
+                                <span class="font-bold text-white">{{ pct_loans }}%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-gray-300">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                                    <span>Member Deposits</span>
+                                </span>
+                                <span class="font-bold text-white">{{ pct_deposits }}%</span>
+                            </div>
+                            <div class="flex items-center justify-between text-gray-300">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    <span>Emergency Advances</span>
+                                </span>
+                                <span class="font-bold text-white">{{ pct_advances }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Trial Balance Status Alert -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/50">
+                            <i class="fa-solid fa-scale-balanced text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Double-Entry Trial Balance Verification</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Total Debits: <strong class="text-emerald-400">${{ trial_balance.total_debits|floatformat:2 }}</strong> &bull; Total Credits: <strong class="text-emerald-400">${{ trial_balance.total_credits|floatformat:2 }}</strong> &bull; Net Difference: <strong class="text-white">${{ trial_balance.net_difference|floatformat:2 }}</strong></p>
+                        </div>
+                    </div>
+                    <span class="bg-emerald-950 text-emerald-400 border border-emerald-800/80 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        PERFECT TRIAL BALANCE
+                    </span>
+                </div>
+
+                <!-- Recent Ledger Transactions Table -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-base font-bold text-white">Recent Financial Transactions</h2>
+                        <span class="text-xs text-gray-500">Immutable Double-Entry Ledger</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
+                                    <th class="py-3 px-3">Date</th>
+                                    <th class="py-3 px-3">Type</th>
+                                    <th class="py-3 px-3">Member</th>
+                                    <th class="py-3 px-3">Amount</th>
+                                    <th class="py-3 px-3">Principal / Interest</th>
+                                    <th class="py-3 px-3">Method</th>
+                                    <th class="py-3 px-3">Double-Entry Postings</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for trx in recent_transactions %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 text-gray-400 font-mono text-[11px]">{{ trx.created_at|date:"M d, Y H:i" }}</td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold 
+                                            {% if 'DISBURSEMENT' in trx.transaction_type %}bg-purple-950 text-purple-400 border border-purple-800/40
+                                            {% elif 'REPAYMENT' in trx.transaction_type %}bg-emerald-950 text-emerald-400 border border-emerald-800/40
+                                            {% elif 'DEPOSIT' in trx.transaction_type %}bg-blue-950 text-blue-400 border border-blue-800/40
+                                            {% else %}bg-amber-950 text-amber-400 border border-amber-800/40{% endif %}">
+                                            {{ trx.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-3 text-white font-medium">{{ trx.user.get_full_name|default:trx.user.username }}</td>
+                                    <td class="py-3 px-3 font-bold text-emerald-400">${{ trx.amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 text-gray-400 text-[11px]">
+                                        P: ${{ trx.principal_portion|floatformat:2 }} | I: ${{ trx.interest_portion|floatformat:2 }}
+                                    </td>
+                                    <td class="py-3 px-3 text-gray-400">{{ trx.get_payment_method_display }}</td>
+                                    <td class="py-3 px-3">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            {% for entry in trx.ledger_entries.all %}
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono {% if entry.entry_type == 'DEBIT' %}bg-rose-950 text-rose-300 border border-rose-800/30{% else %}bg-emerald-950 text-emerald-300 border border-emerald-800/30{% endif %}">
+                                                {{ entry.entry_type }}: {{ entry.account.code }} (${{ entry.amount|floatformat:2 }})
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="py-6 text-center text-gray-500">No transactions recorded yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 3: NEW PRIMARY LOAN APPLICATION (DARK FORM PANEL)          -->
+            <!-- ============================================================== -->
+            <div id="section-new-loan" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Loans</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">New loan application</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">New Loan Application</h1>
+                    <p class="text-xs text-gray-400 mt-1">Disburse reducing-balance interest-bearing loan to SACCOS members.</p>
+                </div>
+
+                <form method="POST" action="/" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="apply_loan">
+
+                    <!-- Borrower Selection Panel -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Borrower Profile</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Borrower <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="borrower_id" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="">Select Member...</option>
+                                    {% for m in members %}
+                                    <option value="{{ m.id }}">{{ m.get_full_name|default:m.username }} ({{ m.member_id|default:m.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Loan Type <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="text" readonly value="Primary Loan (Reducing Balance EMI)" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-400 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Terms Panel -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Loan Terms & Parameters</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Principal Amount ($) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="100" id="loan_principal" name="principal_amount" value="5000" oninput="calculatePreviewEMI()" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Annual Interest Rate (%) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="1" max="50" id="loan_rate" name="interest_rate" value="12.00" oninput="calculatePreviewEMI()" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Tenure (Months) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" min="1" max="120" id="loan_tenure" name="tenure_months" value="12" oninput="calculatePreviewEMI()" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Live Calculation Preview -->
+                        <div class="mt-6 p-4 rounded-xl bg-[#0b0e14] border border-[#222b3e] flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Calculated Monthly EMI</span>
+                                <h3 id="preview_emi" class="text-2xl font-bold text-emerald-400 mt-1">$444.24</h3>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Total Repayment</span>
+                                <h3 id="preview_total" class="text-base font-bold text-white mt-1">$5,330.88</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Approve & Disburse Loan</span>
+                        </button>
+                        <button type="reset" class="bg-transparent border border-[#222b3e] text-gray-400 hover:text-white px-5 py-2.5 rounded-lg text-xs transition">
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 4: EMERGENCY ADVANCE (30-DAY GRACE PERIOD FORM)            -->
+            <!-- ============================================================== -->
+            <div id="section-emergency-advance" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Advances</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">Emergency advance</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Emergency Advance Request</h1>
+                    <p class="text-xs text-gray-400 mt-1">Short-term, 0% interest relief advance with strict 30-day grace period.</p>
+                </div>
+
+                <form method="POST" action="/" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="apply_advance">
+
+                    <!-- Member Selection -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Advance Recipient</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Member <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="borrower_id" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="">Select Member...</option>
+                                    {% for m in members %}
+                                    <option value="{{ m.id }}">{{ m.get_full_name|default:m.username }} ({{ m.member_id|default:m.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Advance Amount ($) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="50" max="2000" name="amount" value="500" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Emergency Purpose / Justification</label>
+                            <input type="text" name="purpose" placeholder="Medical emergency, urgent repair, educational fees..." class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Policy Box -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-3">Grace Period & Penalty Rules</h2>
+                        <ul class="text-xs text-gray-400 space-y-2 list-disc list-inside">
+                            <li><strong>0% Interest:</strong> Advance remains 100% interest-free for the first 30 days.</li>
+                            <li><strong>Due Date:</strong> Due in full on <strong>{{ today }} + 30 days</strong>.</li>
+                            <li><strong>Overdue Penalty:</strong> Flat 5.00% fine applied if not repaid within the grace period.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Grant Emergency Advance</span>
+                        </button>
+                        <button type="reset" class="bg-transparent border border-[#222b3e] text-gray-400 hover:text-white px-5 py-2.5 rounded-lg text-xs transition">
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 5: RECORD PAYMENT (DOUBLE ENTRY JOURNAL VOUCHER)           -->
+            <!-- ============================================================== -->
+            <div id="section-record-payment" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Financials</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">Record payment</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Record Financial Payment</h1>
+                    <p class="text-xs text-gray-400 mt-1">Atomically posts balancing Debit & Credit ledger entries into the chart of accounts.</p>
+                </div>
+
+                <form method="POST" action="/" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="record_payment">
+
+                    <!-- Payment Information -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <h2 class="text-base font-bold text-white mb-5">Transaction Details</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Member <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="user_id" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="">Select Member...</option>
+                                    {% for m in members %}
+                                    <option value="{{ m.id }}">{{ m.get_full_name|default:m.username }} ({{ m.member_id|default:m.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Transaction Type <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="transaction_type" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="DEPOSIT">Deposit (Savings Contribution)</option>
+                                    <option value="WITHDRAWAL">Withdrawal</option>
+                                    <option value="LOAN_REPAYMENT">Loan Repayment (EMI)</option>
+                                    <option value="EMERGENCY_REPAYMENT">Emergency Advance Repayment</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Amount ($) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="1" name="amount" placeholder="0.00" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <!-- Target Loan or Advance -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Target Primary Loan (If Repayment)</label>
+                                <select name="target_loan_id" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="">None / Not Applicable</option>
+                                    {% for loan in primary_loans %}
+                                    <option value="{{ loan.id }}">Loan #{{ loan.id }} - {{ loan.borrower.username }} (${{ loan.principal_amount|floatformat:2 }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Payment Method</label>
+                                <select name="payment_method" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="BANK_TRANSFER">Bank Transfer / Wire</option>
+                                    <option value="CASH">Cash Over Counter</option>
+                                    <option value="MOBILE_PAYMENT">Mobile Money / Digital Wallet</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Description / Note</label>
+                            <input type="text" name="description" placeholder="Monthly contribution, bank ref #..." class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Double-entry auto posting info card -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-circle-nodes text-emerald-400 text-lg"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Immutable Double-Entry Ledger Posting</h4>
+                                <p class="text-[11px] text-gray-400 mt-0.5">Every transaction automatically writes paired balancing debit & credit journal entries to ensure zero variance in the organization trial balance.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                            <i class="fa-solid fa-check-double"></i>
+                            <span>Post Transaction</span>
+                        </button>
+                        <button type="reset" class="bg-transparent border border-[#222b3e] text-gray-400 hover:text-white px-5 py-2.5 rounded-lg text-xs transition">
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 5B: RECORD MEMBER DEPOSIT INTO ORGANIZATION ACCOUNT         -->
+            <!-- ============================================================== -->
+            <div id="section-record-deposit" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Financial Operations</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">Record Member Deposit</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Record Member Savings Deposit</h1>
+                    <p class="text-xs text-gray-400 mt-1">Financial Operator console: Record member cash or bank deposits into the ESPN SACCOS organization master account.</p>
+                </div>
+
+                <form method="POST" action="/" class="space-y-6">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="record_deposit">
+                    <input type="hidden" name="transaction_type" value="DEPOSIT">
+
+                    <!-- Deposit Entry Panel -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/40">
+                                <i class="fa-solid fa-building-columns text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">Deposit Inflow Details</h2>
+                                <p class="text-xs text-gray-400">Credited to Member Savings and Debited to Organization Cash & Bank reserves.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Member Depositor <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="user_id" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 transition outline-none">
+                                    <option value="">Select Member...</option>
+                                    {% for m in members %}
+                                    <option value="{{ m.id }}">{{ m.get_full_name|default:m.username }} ({{ m.member_id|default:m.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Deposit Amount ($) <span class="text-rose-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" min="1" id="deposit_amount_input" name="amount" placeholder="0.00" value="1000.00" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none font-mono font-bold text-emerald-400" oninput="updateDepositPreview()">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Deposit Channel / Method <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="payment_method" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                    <option value="BANK_TRANSFER">Bank Wire / Direct Transfer</option>
+                                    <option value="CASH">Cash Over Counter</option>
+                                    <option value="MOBILE_PAYMENT">Mobile Wallet / Digital Payment</option>
+                                    <option value="INTERNAL_TRANSFER">Internal Account Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quick amount selector buttons -->
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-[11px] text-gray-500">Quick Select:</span>
+                            <button type="button" onclick="setDepositAmount(250)" class="px-2.5 py-1 bg-[#0b0e14] hover:bg-[#1a2234] border border-[#222b3e] text-gray-300 rounded text-[11px] font-mono transition">$250</button>
+                            <button type="button" onclick="setDepositAmount(500)" class="px-2.5 py-1 bg-[#0b0e14] hover:bg-[#1a2234] border border-[#222b3e] text-gray-300 rounded text-[11px] font-mono transition">$500</button>
+                            <button type="button" onclick="setDepositAmount(1000)" class="px-2.5 py-1 bg-[#0b0e14] hover:bg-[#1a2234] border border-[#222b3e] text-gray-300 rounded text-[11px] font-mono transition">$1,000</button>
+                            <button type="button" onclick="setDepositAmount(2500)" class="px-2.5 py-1 bg-[#0b0e14] hover:bg-[#1a2234] border border-[#222b3e] text-gray-300 rounded text-[11px] font-mono transition">$2,500</button>
+                            <button type="button" onclick="setDepositAmount(5000)" class="px-2.5 py-1 bg-[#0b0e14] hover:bg-[#1a2234] border border-[#222b3e] text-gray-300 rounded text-[11px] font-mono transition">$5,000</button>
+                        </div>
+
+                        <!-- Reference and Account Details -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 pt-4 border-t border-[#1e2638]">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Bank Voucher / Reference #</label>
+                                <input type="text" name="reference_number" placeholder="e.g. SLIP-98421, TXN-0038" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none font-mono">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Receiving Organization Account</label>
+                                <input type="text" readonly value="1010 - Liquid Cash & Bank Reserves" class="w-full bg-[#0b0e14] border border-[#222b3e] text-emerald-400 font-mono text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Credited Ledger Account</label>
+                                <input type="text" readonly value="2010 - Member Savings Deposits" class="w-full bg-[#0b0e14] border border-[#222b3e] text-blue-400 font-mono text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Operator Notes / Deposit Description</label>
+                            <input type="text" name="description" placeholder="Monthly mandatory contribution, voluntary savings, or fixed deposit..." class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Double-Entry Accounting Verification Card -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-scale-balanced text-emerald-400 text-base"></i>
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Automated Double-Entry Ledger Impact</h3>
+                            </div>
+                            <span class="text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40 px-2 py-0.5 rounded">
+                                BALANCED: DR = CR
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div class="p-3 bg-[#0b0e14] rounded-lg border border-[#222b3e]">
+                                <span class="text-rose-400 font-bold font-mono">[DEBIT]</span>
+                                <span class="text-white font-medium ml-1">Account 1010 &mdash; Cash and Bank</span>
+                                <p class="text-[11px] text-gray-400 mt-1">Increases ESPN SACCOS liquid asset reserves by <strong id="preview_debit_amount" class="text-emerald-400 font-mono">$1,000.00</strong></p>
+                            </div>
+                            <div class="p-3 bg-[#0b0e14] rounded-lg border border-[#222b3e]">
+                                <span class="text-emerald-400 font-bold font-mono">[CREDIT]</span>
+                                <span class="text-white font-medium ml-1">Account 2010 &mdash; Member Savings Deposits</span>
+                                <p class="text-[11px] text-gray-400 mt-1">Increases SACCOS liability / member deposit balance by <strong id="preview_credit_amount" class="text-blue-400 font-mono">$1,000.00</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                            <span>Post Deposit to Organization Account</span>
+                        </button>
+                        <button type="reset" class="bg-transparent border border-[#222b3e] text-gray-400 hover:text-white px-5 py-2.5 rounded-lg text-xs transition">
+                            Cancel
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 6: TRIAL BALANCE REPORT (DOUBLE-ENTRY FULL TABLE)          -->
+            <!-- ============================================================== -->
+            <div id="section-trial-balance" class="tab-pane hidden space-y-6">
+                
+                <div class="flex items-center justify-between">
+                    <div>
+                        <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                            <span>Dashboard</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <span>Reports</span>
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <span class="text-gray-200 font-medium">Trial balance</span>
+                        </nav>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Organization Trial Balance</h1>
+                        <p class="text-xs text-gray-400 mt-1">Generated dynamically from immutable transaction journal entries.</p>
+                    </div>
+
+                    <a href="/api/v1/reports/trial-balance/" target="_blank" class="bg-[#111622] border border-[#222b3e] hover:border-gray-600 text-gray-200 text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-2 transition">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Export JSON</span>
+                    </a>
+                </div>
+
+                <!-- Balanced Summary Banner -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center text-lg border border-emerald-800/50">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Trial Balance Status: Balanced</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">Sum of all Debits equals sum of all Credits across all accounts.</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400">Net Variance</p>
+                        <p class="text-xl font-bold text-emerald-400 font-mono">$0.00</p>
+                    </div>
+                </div>
+
+                <!-- Accounts Table -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
+                                    <th class="py-3 px-3">Code</th>
+                                    <th class="py-3 px-3">Account Name</th>
+                                    <th class="py-3 px-3">Classification</th>
+                                    <th class="py-3 px-3 text-right">Debit Balance ($)</th>
+                                    <th class="py-3 px-3 text-right">Credit Balance ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for acc in trial_balance.accounts %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 font-mono text-emerald-400 font-bold">{{ acc.code }}</td>
+                                    <td class="py-3 px-3 text-white font-medium">{{ acc.name }}</td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0b0e14] border border-[#222b3e] text-gray-300">
+                                            {{ acc.account_type }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-3 text-right font-mono font-medium {% if acc.debit_balance > 0 %}text-white{% else %}text-gray-600{% endif %}">
+                                        {{ acc.debit_balance|floatformat:2 }}
+                                    </td>
+                                    <td class="py-3 px-3 text-right font-mono font-medium {% if acc.credit_balance > 0 %}text-white{% else %}text-gray-600{% endif %}">
+                                        {{ acc.credit_balance|floatformat:2 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2 border-[#1e2638] font-bold text-sm bg-[#0b0e14]/50">
+                                    <td colspan="3" class="py-4 px-3 text-white uppercase tracking-wider">Total Ledger Balances</td>
+                                    <td class="py-4 px-3 text-right font-mono text-emerald-400">${{ trial_balance.total_debits|floatformat:2 }}</td>
+                                    <td class="py-4 px-3 text-right font-mono text-emerald-400">${{ trial_balance.total_credits|floatformat:2 }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 7: EMI CALCULATOR                                          -->
+            <!-- ============================================================== -->
+            <div id="section-calculator" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Tools</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">EMI calculator</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Interactive EMI Calculator</h1>
+                    <p class="text-xs text-gray-400 mt-1">Mathematical reducing-balance amortization model.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Calculator Inputs -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm space-y-4">
+                        <h2 class="text-base font-bold text-white mb-2">Loan Parameters</h2>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Principal Amount ($)</label>
+                            <input type="number" id="calc_p" value="10000" step="500" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none" oninput="runFullCalculator()">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Annual Interest Rate (%)</label>
+                            <input type="number" id="calc_r" value="12.0" step="0.5" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none" oninput="runFullCalculator()">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-300 mb-1.5">Tenure (Months)</label>
+                            <input type="number" id="calc_n" value="24" step="6" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none" oninput="runFullCalculator()">
+                        </div>
+
+                        <div class="pt-4 border-t border-[#1e2638] space-y-3 text-xs">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Monthly EMI</span>
+                                <span id="res_emi" class="font-bold text-emerald-400 text-sm">$470.73</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Interest</span>
+                                <span id="res_interest" class="font-bold text-white">$1,297.63</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Total Repayment</span>
+                                <span id="res_total" class="font-bold text-white">$11,297.63</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Amortization Schedule Table -->
+                    <div class="md:col-span-2 bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm flex flex-col">
+                        <h2 class="text-base font-bold text-white mb-4">First 12 Months Amortization Schedule</h2>
+                        
+                        <div class="overflow-y-auto max-h-80">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase text-[10px]">
+                                        <th class="py-2.5 px-2">Month</th>
+                                        <th class="py-2.5 px-2">EMI ($)</th>
+                                        <th class="py-2.5 px-2">Principal ($)</th>
+                                        <th class="py-2.5 px-2">Interest ($)</th>
+                                        <th class="py-2.5 px-2 text-right">Balance ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="amortization_body" class="divide-y divide-[#1e2638]">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 8: PROFILE & SECURITY (CHANGE PASSWORD & RESET PASSWORD)   -->
+            <!-- ============================================================== -->
+            <div id="section-profile" class="tab-pane hidden space-y-6">
+                
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Account</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">Profile & Security</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">Profile & Security Settings</h1>
+                    <p class="text-xs text-gray-400 mt-1">Manage your member identity, update passwords, and secure your cooperative account.</p>
+                </div>
+
+                <!-- Panel 1: Member Identity Overview -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white text-base font-bold">
+                                {% if current_user %}{{ current_user.username|slice:":2"|upper }}{% else %}ME{% endif %}
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white">{% if current_user %}{{ current_user.get_full_name|default:current_user.username }}{% else %}Cooperative Member{% endif %}</h2>
+                                <p class="text-xs text-gray-400">{% if current_user %}{{ current_user.email|default:"member@espnsaccos.org" }}{% else %}member@espnsaccos.org{% endif %}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-950 text-blue-400 border border-blue-800/40">
+                                {% if current_user %}{{ current_user.get_role_display }}{% else %}Member{% endif %}
+                            </span>
+                            {% if current_user and current_user.must_change_password %}
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800/40 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                Temporary Password Active
+                            </span>
+                            {% else %}
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                Password Secured
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs pt-4 border-t border-[#1e2638]">
+                        <div>
+                            <span class="text-gray-500 uppercase tracking-wider font-semibold">Member ID</span>
+                            <p class="text-white font-mono font-bold mt-1">{% if current_user %}{{ current_user.member_id|default:"MEM-1001" }}{% else %}MEM-1001{% endif %}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 uppercase tracking-wider font-semibold">Username</span>
+                            <p class="text-white font-medium mt-1">{% if current_user %}{{ current_user.username }}{% else %}member_john{% endif %}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 uppercase tracking-wider font-semibold">Contact Phone</span>
+                            <p class="text-white font-medium mt-1">{% if current_user %}{{ current_user.phone_number|default:"+977-9800000000" }}{% else %}+977-9800000000{% endif %}</p>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 uppercase tracking-wider font-semibold">Date Joined</span>
+                            <p class="text-white font-medium mt-1">{% if current_user %}{{ current_user.date_joined|date:"M d, Y" }}{% else %}{{ today }}{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Change Password within Dashboard (In-Profile) -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-9 h-9 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/40">
+                            <i class="fa-solid fa-key text-sm"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Change Password</h2>
+                            <p class="text-xs text-gray-400">Update your current or temporary password to a new secure personal password.</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="/" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="change_password">
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Member Username <span class="text-rose-500">*</span></label>
+                                {% if current_user %}
+                                <input type="text" name="username" readonly value="{{ current_user.username }}" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-400 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                {% else %}
+                                <select name="username" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                    {% for m in members %}
+                                    <option value="{{ m.username }}">{{ m.get_full_name|default:m.username }} ({{ m.username }})</option>
+                                    {% endfor %}
+                                </select>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Current / Temporary Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="old_password" required placeholder="Enter current password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">New Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Confirm New Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <p class="text-[11px] text-gray-500">
+                                <i class="fa-solid fa-circle-info text-emerald-400 mr-1"></i>
+                                Once updated, your temporary password will be invalidated and your account secured.
+                            </p>
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
+                                <i class="fa-solid fa-lock"></i>
+                                <span>Save New Password</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Panel 3: Reset Password (Emergency Credential Recovery Screen) -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-9 h-9 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center border border-blue-800/40">
+                            <i class="fa-solid fa-rotate text-sm"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white">Reset Member Password</h2>
+                            <p class="text-xs text-gray-400">Emergency reset for forgotten passwords or administrative re-provisioning.</p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="/" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reset_password">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Username or Registered Email <span class="text-rose-500">*</span></label>
+                                <input type="text" name="username_or_email" required placeholder="e.g. member_john or john@espnsaccos.org" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">New Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">Confirm New Password <span class="text-rose-500">*</span></label>
+                                <input type="password" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <p class="text-[11px] text-gray-500">
+                                <i class="fa-solid fa-shield text-blue-400 mr-1"></i>
+                                Directly resets credentials and removes temporary password flag.
+                            </p>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm flex items-center gap-2">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>Reset Password</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- TAB SWITCHING & CHART.JS SCRIPTS -->
+    <script>
+        function showTab(tabName) {
+            if (tabName === 'new-customer') tabName = 'new-member';
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+
+            // Show selected pane
+            const target = document.getElementById('section-' + tabName);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // Update nav item active styling
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('nav-item-active');
+                const icon = el.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('text-emerald-400');
+                    icon.classList.add('text-gray-400');
+                }
+            });
+
+            const activeBtn = document.getElementById('nav-' + tabName);
+            if (activeBtn) {
+                activeBtn.classList.add('nav-item-active');
+                const icon = activeBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('text-gray-400');
+                    icon.classList.add('text-emerald-400');
+                }
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Live EMI preview for loan application form
+        function calculatePreviewEMI() {
+            const p = parseFloat(document.getElementById('loan_principal').value) || 0;
+            const rAnnual = parseFloat(document.getElementById('loan_rate').value) || 0;
+            const n = parseInt(document.getElementById('loan_tenure').value) || 1;
+
+            if (p <= 0 || n <= 0) return;
+
+            const rMonthly = (rAnnual / 100) / 12;
+            let emi = 0;
+
+            if (rMonthly === 0) {
+                emi = p / n;
+            } else {
+                emi = (p * rMonthly * Math.pow(1 + rMonthly, n)) / (Math.pow(1 + rMonthly, n) - 1);
+            }
+
+            const total = emi * n;
+            document.getElementById('preview_emi').innerText = '$' + emi.toFixed(2);
+            document.getElementById('preview_total').innerText = '$' + total.toFixed(2);
+        }
+
+        // Live deposit preview & quick preset selectors
+        function setDepositAmount(val) {
+            const input = document.getElementById('deposit_amount_input');
+            if (input) {
+                input.value = parseFloat(val).toFixed(2);
+                updateDepositPreview();
+            }
+        }
+
+        function updateDepositPreview() {
+            const input = document.getElementById('deposit_amount_input');
+            const amt = input ? (parseFloat(input.value) || 0) : 0;
+            const debitEl = document.getElementById('preview_debit_amount');
+            const creditEl = document.getElementById('preview_credit_amount');
+            if (debitEl) debitEl.innerText = '$' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (creditEl) creditEl.innerText = '$' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Full Amortization Calculator
+        function runFullCalculator() {
+            const p = parseFloat(document.getElementById('calc_p').value) || 0;
+            const rAnnual = parseFloat(document.getElementById('calc_r').value) || 0;
+            const n = parseInt(document.getElementById('calc_n').value) || 1;
+
+            const rMonthly = (rAnnual / 100) / 12;
+            let emi = (p * rMonthly * Math.pow(1 + rMonthly, n)) / (Math.pow(1 + rMonthly, n) - 1);
+            if (rMonthly === 0) emi = p / n;
+
+            const totalRepayment = emi * n;
+            const totalInterest = totalRepayment - p;
+
+            document.getElementById('res_emi').innerText = '$' + emi.toFixed(2);
+            document.getElementById('res_interest').innerText = '$' + totalInterest.toFixed(2);
+            document.getElementById('res_total').innerText = '$' + totalRepayment.toFixed(2);
+
+            let bal = p;
+            let rowsHtml = '';
+            const maxRows = Math.min(n, 12);
+
+            for (let i = 1; i <= maxRows; i++) {
+                const interest = bal * rMonthly;
+                const principal = emi - interest;
+                bal = Math.max(0, bal - principal);
+
+                rowsHtml += `
+                    <tr class="hover:bg-[#151c2a]">
+                        <td class="py-2 px-2 text-gray-400 font-mono">Month ${i}</td>
+                        <td class="py-2 px-2 text-white font-mono">$${emi.toFixed(2)}</td>
+                        <td class="py-2 px-2 text-emerald-400 font-mono">$${principal.toFixed(2)}</td>
+                        <td class="py-2 px-2 text-amber-400 font-mono">$${interest.toFixed(2)}</td>
+                        <td class="py-2 px-2 text-right text-gray-300 font-mono">$${bal.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            document.getElementById('amortization_body').innerHTML = rowsHtml;
+        }
+
+        // Initialize Charts and Calculator on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            runFullCalculator();
+            calculatePreviewEMI();
+            updateDepositPreview();
+
+            // 1. Revenue Chart (Apex Style with Smooth Spline curve)
+            const ctxRev = document.getElementById('revenueChart');
+            if (ctxRev) {
+                new Chart(ctxRev.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [
+                            {
+                                label: 'Revenue ($)',
+                                data: [4200, 5400, 5500, 6200, 5800, 6500, 7800],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointRadius: 0,
+                                pointHoverRadius: 6,
+                            },
+                            {
+                                label: 'Orders ($)',
+                                data: [3800, 4800, 5000, 5300, 5100, 5900, 6800],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'transparent',
+                                borderDash: [4, 4],
+                                tension: 0.4,
+                                borderWidth: 2,
+                                pointRadius: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#111622',
+                                titleColor: '#ffffff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#1e2638',
+                                borderWidth: 1,
+                                padding: 10,
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(30, 38, 56, 0.5)' },
+                                ticks: { color: '#64748b', font: { size: 11 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(30, 38, 56, 0.5)' },
+                                ticks: {
+                                    color: '#64748b',
+                                    font: { size: 11 },
+                                    callback: function(v) { return '$' + v.toLocaleString(); }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Traffic / Portfolio Allocation Doughnut Chart
+            const ctxTraffic = document.getElementById('trafficChart');
+            if (ctxTraffic) {
+                new Chart(ctxTraffic.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Liquid Cash', 'Loans', 'Deposits', 'Advances'],
+                        datasets: [{
+                            data: [{{ pct_cash }}, {{ pct_loans }}, {{ pct_deposits }}, {{ pct_advances }}],
+                            backgroundColor: ['#10b981', '#3b82f6', '#a855f7', '#f59e0b'],
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '76%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#111622',
+                                titleColor: '#ffffff',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#1e2638',
+                                borderWidth: 1,
+                                padding: 8,
+                                callbacks: {
+                                    label: function(ctx) {
+                                        return ' ' + ctx.label + ': ' + ctx.raw + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

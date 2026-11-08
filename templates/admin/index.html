@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% load i18n unfold %}
+
+{% block content %}
+<style>
+    .kpi-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+    .dark .kpi-card {
+        background-color: #111622 !important;
+        border: 1px solid #1e2638 !important;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+    .kpi-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+    }
+    .dark .kpi-title {
+        color: #94a3b8 !important;
+    }
+    .kpi-metric {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 0.25rem;
+        color: #0f172a;
+        letter-spacing: -0.025em;
+    }
+    .dark .kpi-metric {
+        color: #ffffff !important;
+    }
+    .kpi-desc {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 0.25rem;
+    }
+    .dark .kpi-desc {
+        color: #64748b !important;
+    }
+    .dark .icon-success { background-color: rgba(6, 78, 59, 0.5) !important; color: #34d399 !important; border: 1px solid rgba(5, 150, 105, 0.3) !important; }
+    .dark .icon-info { background-color: rgba(30, 58, 138, 0.5) !important; color: #60a5fa !important; border: 1px solid rgba(37, 99, 235, 0.3) !important; }
+    .dark .icon-warning { background-color: rgba(120, 53, 15, 0.5) !important; color: #fbbf24 !important; border: 1px solid rgba(217, 119, 6, 0.3) !important; }
+    .dark .icon-danger { background-color: rgba(136, 19, 55, 0.5) !important; color: #f43f5e !important; border: 1px solid rgba(225, 29, 72, 0.3) !important; }
+</style>
+
+<div class="flex flex-col gap-6 w-full mb-8">
+
+    <!-- Page heading -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                {% trans "ESPN SACCOS Financial Administration" %}
+            </h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {% trans "Real-time overview of organizational funds, loans, and double-entry ledger health." %}
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/" class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
+                <span class="material-symbols-outlined text-sm">dashboard</span>
+                <span>Open ESPN SACCOS Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 6 KPI Metric Cards Row (Theme-aware dark background) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for stat in kpi_stats %}
+        <div class="kpi-card shadow-xs">
+            <!-- Icon top-right -->
+            <div class="absolute top-4 right-4 w-10 h-10 rounded-lg flex items-center justify-center
+                {% if stat.color == 'success' %}bg-green-100 text-green-600 icon-success
+                {% elif stat.color == 'info' %}bg-blue-100 text-blue-600 icon-info
+                {% elif stat.color == 'warning' %}bg-amber-100 text-amber-600 icon-warning
+                {% elif stat.color == 'danger' %}bg-red-100 text-red-600 icon-danger
+                {% else %}bg-gray-100 text-gray-500{% endif %}">
+                <span class="material-symbols-outlined text-[20px]">{{ stat.icon }}</span>
+            </div>
+
+            <p class="kpi-title">
+                {{ stat.title }}
+            </p>
+            <p class="kpi-metric">
+                {{ stat.metric }}
+            </p>
+            <p class="kpi-desc">
+                {{ stat.description }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Trial Balance Alert -->
+    {% if is_balanced %}
+    <div class="flex items-center justify-between bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800/60 rounded-xl px-5 py-3">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-600 dark:text-green-400">verified</span>
+            <div>
+                <p class="text-xs font-bold text-green-800 dark:text-green-300">Double-Entry Trial Balance: BALANCED</p>
+                <p class="text-[11px] text-green-600 dark:text-green-400">All Debits equal all Credits — Net Variance: $0.00</p>
+            </div>
+        </div>
+        <span class="text-[10px] font-bold bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded">PERFECT</span>
+    </div>
+    {% else %}
+    <div class="flex items-center gap-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-xl px-5 py-3">
+        <span class="material-symbols-outlined text-red-600 dark:text-red-400">error</span>
+        <div>
+            <p class="text-xs font-bold text-red-800 dark:text-red-300">Warning: Trial Balance is UNBALANCED</p>
+            <p class="text-[11px] text-red-600 dark:text-red-400">Total Debits do not equal Total Credits. Check ledger entries.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Standard Unfold App Modules & History (Tailwind Styled) -->
+    <div class="flex flex-col lg:flex-row lg:gap-8 mt-2">
+        <div class="grow">
+            {% include "unfold/helpers/app_list_default.html" %}
+        </div>
+        {% include "unfold/helpers/history.html" %}
+    </div>
+
+</div>
+{% endblock %}
