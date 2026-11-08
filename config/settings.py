@@ -4,6 +4,7 @@ Financial Ledger & Loan Management System
 """
 
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -86,7 +87,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database — Supabase PostgreSQL via DATABASE_URL or SQLite locally
 DATABASE_URL = os.getenv('DATABASE_URL', '')
-if DATABASE_URL:
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+elif DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }

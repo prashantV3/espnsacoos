@@ -74,6 +74,67 @@ class TrialBalanceReport:
         }
 
     @classmethod
+    def generate_member_trial_balance(cls, user) -> dict:
+        """
+        Computes a member's individual double-entry Trial Balance.
+        Aggregates all ledger entries tied to this member's deposits, loan disbursements,
+        and repayments, verifying that individual Debits equal Credits.
+        """
+        accounts = Account.objects.all().order_by('code')
+        accounts_summary = []
+        total_member_debits = Decimal('0.00')
+        total_member_credits = Decimal('0.00')
+
+        entries_qs = LedgerEntry.objects.filter(transaction__user=user)
+
+        for account in accounts:
+            account_entries = entries_qs.filter(account=account)
+            debits = account_entries.filter(entry_type=LedgerEntry.EntryType.DEBIT).aggregate(
+                models.Sum('amount')
+            )['amount__sum'] or Decimal('0.00')
+
+            credits = account_entries.filter(entry_type=LedgerEntry.EntryType.CREDIT).aggregate(
+                models.Sum('amount')
+            )['amount__sum'] or Decimal('0.00')
+
+            if debits > 0 or credits > 0:
+                total_member_debits += debits
+                total_member_credits += credits
+
+                if account.account_type in [Account.AccountType.ASSET, Account.AccountType.EXPENSE]:
+                    net = debits - credits
+                    debit_balance = net if net > 0 else Decimal('0.00')
+                    credit_balance = abs(net) if net < 0 else Decimal('0.00')
+                else:
+                    net = credits - debits
+                    debit_balance = abs(net) if net < 0 else Decimal('0.00')
+                    credit_balance = net if net > 0 else Decimal('0.00')
+
+                accounts_summary.append({
+                    'account_id': account.id,
+                    'code': account.code,
+                    'name': account.name,
+                    'account_type': account.account_type,
+                    'total_debits': float(debits),
+                    'total_credits': float(credits),
+                    'debit_balance': float(debit_balance),
+                    'credit_balance': float(credit_balance),
+                    'net_balance': float(debit_balance - credit_balance if account.account_type == Account.AccountType.ASSET else credit_balance - debit_balance)
+                })
+
+        net_difference = total_member_debits - total_member_credits
+        return {
+            'member_id': user.member_id,
+            'member_name': user.get_full_name() or user.username,
+            'generated_at': timezone.now().isoformat(),
+            'is_balanced': (net_difference == Decimal('0.00')),
+            'total_debits': float(total_member_debits),
+            'total_credits': float(total_member_credits),
+            'net_difference': float(net_difference),
+            'accounts': accounts_summary
+        }
+
+    @classmethod
     def generate_member_financial_summary(cls, user) -> dict:
         """
         Calculates financial standing for a specific member dynamically from transactions.

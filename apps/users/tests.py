@@ -255,3 +255,98 @@ class AuthAndRBACTestCase(TestCase):
         })
         self.assertEqual(login_res.status_code, status.HTTP_200_OK)
         self.assertFalse(login_res.data['must_change_password'])
+
+    def test_web_logout_get_request_no_405(self):
+        """
+        Verify GET /logout/ safely logs out authenticated user with 302 redirect
+        (preventing Django 5's HTTP 405 Method Not Allowed error).
+        """
+        self.client.force_login(self.member)
+        response = self.client.get('/logout/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/')
+
+    def test_admin_logout_interception(self):
+        """
+        Verify GET /admin/logout/ is intercepted by middleware and redirected to /logout/.
+        """
+        self.client.force_login(self.admin)
+        response = self.client.get('/admin/logout/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/logout/')
+
+    def test_web_login_view(self):
+        """
+        Verify GET /login/ displays the login form, and POST /login/ authenticates successfully.
+        """
+        # GET login page
+        get_res = self.client.get('/login/')
+        self.assertEqual(get_res.status_code, 200)
+        self.assertContains(get_res, "ESPN SACCOS")
+
+        # POST valid credentials
+        post_res = self.client.post('/login/', {
+            'username': 'member_user',
+            'password': 'MemberPassword123!'
+        })
+        self.assertEqual(post_res.status_code, 302)
+        self.assertEqual(post_res.url, '/')
+
+    def test_member_dashboard_renders_profile_and_change_password_forms(self):
+        """
+        Verify that a logged-in member with must_change_password=True sees both the
+        mandatory First-Time Password Setup card and the Change Password form.
+        """
+        self.member.must_change_password = True
+        self.member.save()
+        self.client.force_login(self.member)
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="section-profile"')
+        self.assertContains(response, 'first_time_password_change')
+        self.assertContains(response, 'Set Your Permanent Password')
+        self.assertContains(response, 'action" value="change_password"')
+        self.assertContains(response, 'action" value="reset_password"')
+
+    def test_member_can_submit_first_time_password_change(self):
+        """
+        Verify that a member can submit the first_time_password_change form from the dashboard,
+        clearing the must_change_password flag and setting their permanent password.
+        """
+        self.member.must_change_password = True
+        self.member.save()
+        self.client.force_login(self.member)
+
+        response = self.client.post('/', {
+            'action': 'first_time_password_change',
+            'username': self.member.username,
+            'temp_password': 'MemberPassword123!',
+            'new_password': 'PermanentPassword456!',
+            'confirm_password': 'PermanentPassword456!'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Password successfully updated")
+
+        self.member.refresh_from_db()
+        self.assertFalse(self.member.must_change_password)
+        self.assertTrue(self.member.check_password('PermanentPassword456!'))
+
+    def test_member_can_submit_dashboard_change_password(self):
+        """
+        Verify that a member can submit the change_password form from their profile in the dashboard.
+        """
+        self.client.force_login(self.member)
+
+        response = self.client.post('/', {
+            'action': 'change_password',
+            'username': self.member.username,
+            'old_password': 'MemberPassword123!',
+            'new_password': 'NewSecurePassword789!',
+            'confirm_password': 'NewSecurePassword789!'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Your password has been changed successfully")
+
+        self.member.refresh_from_db()
+        self.assertTrue(self.member.check_password('NewSecurePassword789!'))

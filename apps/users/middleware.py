@@ -14,9 +14,9 @@ class AdminAccessRestrictionMiddleware:
 
     def __call__(self, request):
         if request.path.startswith('/admin/'):
-            # Allow logout to proceed
+            # Intercept /admin/logout/ to prevent Django 5 GET 405 Method Not Allowed error
             if request.path.startswith('/admin/logout/'):
-                return self.get_response(request)
+                return redirect('/logout/')
 
             if request.user.is_authenticated:
                 is_admin = (

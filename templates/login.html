@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In &mdash; ESPN SACCOS Member & Operator Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="bg-[#090d16] text-gray-200 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-emerald-500 selection:text-black">
+
+    <div class="w-full max-w-md space-y-6">
+
+        <!-- Logo & Organization Header -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-black font-extrabold text-lg shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-vault text-[#0d1117]"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-white text-2xl tracking-tight">ESPN</span>
+                    <span class="text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded tracking-wide">SACCOS</span>
+                </div>
+            </div>
+            <h1 class="text-xl font-bold text-white tracking-tight mt-3">Member & Staff Sign In</h1>
+            <p class="text-xs text-gray-400">Access your cooperative savings, active loans, and financial services.</p>
+        </div>
+
+        <!-- Flash messages / error alert -->
+        {% if error_message %}
+        <div class="p-3.5 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-300 text-xs flex items-center gap-2.5">
+            <i class="fa-solid fa-circle-exclamation text-rose-400 text-sm"></i>
+            <span>{{ error_message }}</span>
+        </div>
+        {% endif %}
+
+        {% if messages %}
+        <div class="space-y-2">
+            {% for message in messages %}
+            <div class="p-3.5 rounded-xl text-xs flex items-center gap-2.5 {% if message.tags == 'success' %}bg-emerald-950/60 border border-emerald-800/80 text-emerald-300{% elif message.tags == 'warning' %}bg-amber-950/60 border border-amber-800/80 text-amber-300{% else %}bg-blue-950/60 border border-blue-800/80 text-blue-300{% endif %}">
+                <i class="fa-solid fa-info-circle text-sm"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Sign In Card -->
+        <div class="bg-[#111622] border border-[#1e2638] rounded-2xl p-6 shadow-xl space-y-5">
+            
+            <form method="POST" action="/login/" class="space-y-4">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Username or Member ID</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                        <input type="text" id="login_username" name="username" required placeholder="e.g. member_john, superuser" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg pl-9 pr-3.5 py-2.5 outline-none transition placeholder-gray-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-300 mb-1.5">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                        <input type="password" id="login_password" name="password" required placeholder="Enter your password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg pl-9 pr-3.5 py-2.5 outline-none transition placeholder-gray-600">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-gray-300">
+                        <input type="checkbox" checked class="w-3.5 h-3.5 rounded bg-[#0b0e14] border-[#222b3e] text-emerald-500 focus:ring-0">
+                        <span>Remember this device</span>
+                    </label>
+                    <a href="/#section-profile" class="text-emerald-400 hover:underline">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-lg text-xs transition shadow-md shadow-emerald-950 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                    <span>Sign In to ESPN SACCOS</span>
+                </button>
+
+            </form>
+
+            <!-- Quick Demo Credential Autofill Selector -->
+            <div class="pt-4 border-t border-[#1e2638] space-y-2.5">
+                <span class="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider text-center">Quick Demo Sign-In Credentials</span>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onclick="autofill('superuser', 'Admin@123')" class="p-2 bg-[#0b0e14] hover:bg-[#182030] border border-[#222b3e] hover:border-emerald-600/50 rounded-lg text-left transition flex items-center justify-between">
+                        <div>
+                            <span class="block font-semibold text-white">Super Admin</span>
+                            <span class="text-[10px] text-gray-400 font-mono">superuser</span>
+                        </div>
+                        <i class="fa-solid fa-crown text-amber-400 text-xs"></i>
+                    </button>
+                    <button type="button" onclick="autofill('admin_operator', 'Operator@123')" class="p-2 bg-[#0b0e14] hover:bg-[#182030] border border-[#222b3e] hover:border-emerald-600/50 rounded-lg text-left transition flex items-center justify-between">
+                        <div>
+                            <span class="block font-semibold text-white">Operator</span>
+                            <span class="text-[10px] text-gray-400 font-mono">admin_op</span>
+                        </div>
+                        <i class="fa-solid fa-building-columns text-blue-400 text-xs"></i>
+                    </button>
+                    <button type="button" onclick="autofill('member_john', 'Member@123')" class="p-2 bg-[#0b0e14] hover:bg-[#182030] border border-[#222b3e] hover:border-emerald-600/50 rounded-lg text-left transition flex items-center justify-between">
+                        <div>
+                            <span class="block font-semibold text-white">Member John</span>
+                            <span class="text-[10px] text-gray-400 font-mono">member_john</span>
+                        </div>
+                        <i class="fa-solid fa-user text-emerald-400 text-xs"></i>
+                    </button>
+                    <button type="button" onclick="autofill('member_jane', 'Member@123')" class="p-2 bg-[#0b0e14] hover:bg-[#182030] border border-[#222b3e] hover:border-emerald-600/50 rounded-lg text-left transition flex items-center justify-between">
+                        <div>
+                            <span class="block font-semibold text-white">Member Jane</span>
+                            <span class="text-[10px] text-gray-400 font-mono">member_jane</span>
+                        </div>
+                        <i class="fa-solid fa-user text-purple-400 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer link back to Dashboard -->
+        <div class="text-center text-xs text-gray-500">
+            <a href="/" class="hover:text-emerald-400 transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                <span>Return to Public Dashboard</span>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        function autofill(u, p) {
+            document.getElementById('login_username').value = u;
+            document.getElementById('login_password').value = p;
+        }
+    </script>
+
+</body>
+</html>
+

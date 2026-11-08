@@ -87,29 +87,43 @@
             
             <!-- Category 1: DASHBOARDS -->
             <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Dashboards</div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">
+                    {% if is_member %}Member Portal{% else %}Dashboards{% endif %}
+                </div>
                 <div class="space-y-1">
-                    <button onclick="showTab('overview')" id="nav-overview" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
-                        <i class="fa-solid fa-table-cells-large w-4 text-gray-400"></i>
+                    <button onclick="showTab('overview')" id="nav-overview" class="nav-item nav-item-active w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-300 transition text-left">
+                        <i class="fa-solid fa-table-cells-large w-4 text-emerald-400"></i>
                         <span>Overview</span>
                     </button>
+                    {% if is_member %}
+                    <button onclick="showTab('my-loans')" id="nav-my-loans" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-file-invoice-dollar w-4 text-gray-400"></i>
+                        <span>My Loans & EMI</span>
+                    </button>
+                    <button onclick="showTab('transactions')" id="nav-transactions" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-clock-rotate-left w-4 text-gray-400"></i>
+                        <span>My Transactions</span>
+                    </button>
+                    {% else %}
                     <button onclick="showTab('ledger-view')" id="nav-ledger-view" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
                         <i class="fa-solid fa-chart-line w-4 text-gray-400"></i>
                         <span>Analytics</span>
                     </button>
+                    {% endif %}
                     <button onclick="showTab('trial-balance')" id="nav-trial-balance" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
                         <i class="fa-solid fa-scale-balanced w-4 text-gray-400"></i>
-                        <span>Trial Balance</span>
+                        <span>{% if is_member %}My Trial Balance{% else %}Trial Balance{% endif %}</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Category 2: MEMBERSHIP & LOANS -->
+            <!-- Category 2: MEMBERSHIP & LOANS (Only visible to Operators / Admins) -->
+            {% if not is_member %}
             <div>
                 <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Membership & Loans</div>
                 <div class="space-y-1">
-                    <button onclick="showTab('new-member')" id="nav-new-member" class="nav-item nav-item-active w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-300 transition text-left">
-                        <i class="fa-solid fa-user-plus w-4 text-emerald-400"></i>
+                    <button onclick="showTab('new-member')" id="nav-new-member" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
+                        <i class="fa-solid fa-user-plus w-4 text-gray-400"></i>
                         <span>Register Member</span>
                     </button>
                     <button onclick="showTab('new-loan')" id="nav-new-loan" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
@@ -130,15 +144,17 @@
                     </button>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Category 3: APPS -->
             <div>
-                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Apps</div>
+                <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 px-3 pb-2">Apps & Tools</div>
                 <div class="space-y-1">
                     <button onclick="showTab('calculator')" id="nav-calculator" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
                         <i class="fa-solid fa-calculator w-4 text-gray-400"></i>
                         <span>EMI Calculator</span>
                     </button>
+                    {% if current_user and current_user.is_admin_operator %}
                     <a href="/admin/" target="_blank" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-shield-halved w-4 text-gray-400"></i>
@@ -146,13 +162,7 @@
                         </span>
                         <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-600"></i>
                     </a>
-                    <a href="/api/v1/reports/trial-balance/" target="_blank" class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition">
-                        <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-code w-4 text-gray-400"></i>
-                            <span>REST API (JSON)</span>
-                        </span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-600"></i>
-                    </a>
+                    {% endif %}
                     <button onclick="showTab('profile')" id="nav-profile" class="nav-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-400 hover:text-white hover:bg-[#151b2a] transition text-left">
                         <i class="fa-solid fa-key w-4 text-gray-400"></i>
                         <span>Profile & Security</span>
@@ -174,9 +184,15 @@
                         <p class="text-[10px] text-emerald-400 truncate">{% if current_user %}{{ current_user.get_role_display }}{% if current_user.must_change_password %} &bull; <span class="text-amber-400 font-bold">New Pass Req</span>{% endif %}{% else %}Member Account{% endif %}</p>
                     </div>
                 </div>
-                <a href="/admin/logout/" class="text-gray-500 hover:text-gray-300 p-1.5 transition" title="Logout">
+                {% if current_user and current_user.is_authenticated %}
+                <a href="/logout/" class="text-gray-500 hover:text-rose-400 p-1.5 transition" title="Sign Out">
                     <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
                 </a>
+                {% else %}
+                <a href="/login/" class="text-emerald-400 hover:text-emerald-300 p-1.5 transition" title="Sign In">
+                    <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                </a>
+                {% endif %}
             </div>
         </div>
 
@@ -247,14 +263,28 @@
                     <i class="fa-regular fa-sun text-xs"></i>
                 </button>
 
-                <!-- User Profile Pill -->
-                <div onclick="showTab('profile')" class="flex items-center gap-2 pl-2 border-l border-[#222b3e] cursor-pointer hover:opacity-80 transition" title="View Profile & Security">
-                    <div class="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
-                        {% if current_user %}{{ current_user.username|slice:":2"|upper }}{% else %}ME{% endif %}
+                <!-- User Profile Pill / Sign In -->
+                {% if current_user and current_user.is_authenticated %}
+                <div class="flex items-center gap-2 pl-2 border-l border-[#222b3e]">
+                    <div onclick="showTab('profile')" class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition" title="View Profile & Security">
+                        <div class="w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                            {{ current_user.username|slice:":2"|upper }}
+                        </div>
+                        <span class="text-xs font-bold text-gray-200">{{ current_user.username }}</span>
+                        <i class="fa-solid fa-chevron-down text-[10px] text-gray-500"></i>
                     </div>
-                    <span class="text-xs font-bold text-gray-200">{% if current_user %}{{ current_user.username }}{% else %}Profile{% endif %}</span>
-                    <i class="fa-solid fa-chevron-down text-[10px] text-gray-500"></i>
+                    <a href="/logout/" class="text-gray-500 hover:text-rose-400 p-1 text-xs transition" title="Sign Out">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </a>
                 </div>
+                {% else %}
+                <div class="pl-2 border-l border-[#222b3e]">
+                    <a href="/login/" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1.5 shadow-sm shadow-emerald-950">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-[11px]"></i>
+                        <span>Sign In</span>
+                    </a>
+                </div>
+                {% endif %}
 
             </div>
         </header>
@@ -309,9 +339,10 @@
         <main class="p-8 space-y-6 flex-1 w-full mx-auto">
             
             <!-- ============================================================== -->
-            <!-- TAB 1: REGISTER SACCOS MEMBER                                  -->
+            <!-- TAB 1: REGISTER SACCOS MEMBER (Operators / Admins only)        -->
             <!-- ============================================================== -->
-            <div id="section-new-member" class="tab-pane space-y-6">
+            {% if not is_member %}
+            <div id="section-new-member" class="tab-pane hidden space-y-6">
                 
                 <!-- Breadcrumbs & Heading -->
                 <div>
@@ -414,6 +445,45 @@
                         </div>
                     </div>
 
+                    <!-- Panel 3: Account Credentials & Security Rules -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/40">
+                                    <i class="fa-solid fa-lock text-xs"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-bold text-white">Default Account Credentials</h2>
+                                    <p class="text-xs text-gray-400">Initial temporary password for member login.</p>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold bg-amber-950 text-amber-400 border border-amber-800/40 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                                First-Time Password Change Required
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 mb-1.5">
+                                    Initial Temporary Password <span class="text-rose-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                                    <input type="text" name="initial_password" value="Member@123" required class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg pl-9 pr-3.5 py-2.5 font-mono outline-none">
+                                </div>
+                                <p class="text-[11px] text-gray-400 mt-1.5">Default is <code class="text-emerald-400 bg-[#0b0e14] px-1.5 py-0.5 rounded border border-[#222b3e]">Member@123</code>. You can customize it if needed.</p>
+                            </div>
+                            <div class="bg-[#0b0e14] border border-[#222b3e] rounded-lg p-3.5 text-xs text-gray-400 flex flex-col justify-center">
+                                <span class="font-bold text-gray-300 flex items-center gap-1.5 mb-1">
+                                    <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                                    Security Policy Enforced
+                                </span>
+                                <span>When the member signs in with this password for the first time, they will be automatically prompted to set a new personal password before gaining full dashboard access.</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submit Buttons -->
                     <div class="flex items-center gap-3 pt-2">
                         <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg text-xs transition shadow-sm shadow-emerald-950 flex items-center gap-2">
@@ -428,30 +498,135 @@
                 </form>
 
             </div>
+            {% endif %}
 
             <!-- ============================================================== -->
             <!-- TAB 2: OVERVIEW (ANALYTICS, 4 KPI CARDS & CHARTS)             -->
             <!-- ============================================================== -->
-            <div id="section-overview" class="tab-pane hidden space-y-6">
+            <div id="section-overview" class="tab-pane space-y-6">
                 
                 <!-- Page Title Row -->
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
-                        <p class="text-xs text-gray-400 mt-1">Welcome back, Demo. Here's what's happening with organizational funds.</p>
+                        {% if is_member %}
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Member Portal Overview</h1>
+                        <p class="text-xs text-gray-400 mt-1">Welcome back, <strong class="text-emerald-400">{{ current_user.get_full_name|default:current_user.username }}</strong> &bull; Member ID: <span class="font-mono text-gray-300 font-bold">{{ current_user.member_id|default:current_user.username }}</span></p>
+                        {% else %}
+                        <h1 class="text-2xl font-bold text-white tracking-tight">Financial Overview Dashboard</h1>
+                        <p class="text-xs text-gray-400 mt-1">Real-time organizational reserves, loan receivables, and double-entry ledger health.</p>
+                        {% endif %}
                     </div>
 
                     <div class="flex items-center gap-2">
+                        {% if is_member %}
+                        <button onclick="showTab('calculator')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 transition">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>EMI Calculator</span>
+                        </button>
+                        {% else %}
                         <button onclick="showTab('record-payment')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 transition">
                             <i class="fa-solid fa-plus"></i>
                             <span>Record Payment</span>
                         </button>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- 4 KPI METRIC CARDS (Apex style with sparkline trend) -->
+                <!-- 4 KPI METRIC CARDS -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
+                    {% if is_member %}
+                    <!-- Member Card 1: My Total Savings -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">My Savings Deposited</span>
+                                <div class="w-7 h-7 rounded-lg bg-emerald-950/80 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-800/40">
+                                    <i class="fa-solid fa-piggy-bank text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ member_savings_balance|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-emerald-400 mt-1 flex items-center gap-1">
+                                    <span>✓</span> Total savings in SACCOS account
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-emerald-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,22 Q25,18 40,10 T80,8 T100,2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Member Card 2: Individual Outstanding Loan Amount -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">My Loan Amount Outstanding</span>
+                                <div class="w-7 h-7 rounded-lg bg-blue-950/80 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-800/40">
+                                    <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ my_remaining_balance|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-blue-400 mt-1 flex items-center gap-1">
+                                    <span>•</span> Remaining unpaid principal
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-blue-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,20 Q30,19 60,15 T100,5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Member Card 3: Next Date of EMI -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Next Date of EMI</span>
+                                <div class="w-7 h-7 rounded-lg bg-purple-950/80 text-purple-400 flex items-center justify-center text-xs font-bold border border-purple-800/40">
+                                    <i class="fa-regular fa-calendar-check text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">{{ next_emi_date|date:"M d, Y"|default:"None Due" }}</h3>
+                                <p class="text-[11px] font-semibold text-purple-400 mt-1 flex items-center gap-1">
+                                    <span>📅</span> Next scheduled installment
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-purple-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,23 Q35,21 65,14 T100,6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Member Card 4: Monthly Installment Due -->
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-gray-400">Monthly EMI Due</span>
+                                <div class="w-7 h-7 rounded-lg bg-amber-950/80 text-amber-400 flex items-center justify-center text-xs font-bold border border-amber-800/40">
+                                    <i class="fa-solid fa-receipt text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <h3 class="text-2xl font-bold text-white tracking-tight">${{ next_emi_amount|floatformat:2 }}</h3>
+                                <p class="text-[11px] font-semibold text-amber-400 mt-1 flex items-center gap-1">
+                                    <span>•</span> Standard monthly repayment
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-4 h-9">
+                            <svg class="w-full h-full text-amber-500" viewBox="0 0 100 25" preserveAspectRatio="none">
+                                <path d="M0,22 Q25,20 50,14 T80,10 T100,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    {% else %}
                     <!-- Card 1: Total Liquid Capital -->
                     <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm flex flex-col justify-between">
                         <div>
@@ -543,8 +718,131 @@
                             </svg>
                         </div>
                     </div>
-
+                    {% endif %}
                 </div>
+
+                {% if is_member %}
+                <!-- Member Section 1: My Active Loan Facilities & Next EMI Details -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/40">
+                                <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white tracking-tight">My Active Loans & Repayment Status</h2>
+                                <p class="text-xs text-gray-400">Individual loan portfolio, remaining balance, and next installment due date.</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded bg-[#0b0e14] border border-[#222b3e] text-gray-300">
+                            Active Facilities: <strong class="text-white">{{ my_loans|length }}</strong>
+                        </span>
+                    </div>
+
+                    {% if my_loans %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px] bg-[#0b0e14]">
+                                    <th class="py-3 px-3">Loan ID</th>
+                                    <th class="py-3 px-3">Principal Disbursed</th>
+                                    <th class="py-3 px-3">Interest Rate</th>
+                                    <th class="py-3 px-3">Tenure</th>
+                                    <th class="py-3 px-3">Monthly EMI</th>
+                                    <th class="py-3 px-3">Principal Paid</th>
+                                    <th class="py-3 px-3">Remaining Balance</th>
+                                    <th class="py-3 px-3">Next Date of EMI</th>
+                                    <th class="py-3 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for loan in my_loans %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 font-mono font-bold text-white">#{{ loan.id }}</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-emerald-400">${{ loan.principal_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono text-gray-300">{{ loan.interest_rate }}% p.a.</td>
+                                    <td class="py-3 px-3 text-gray-300">{{ loan.tenure_months }} mos</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-white">${{ loan.emi_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono text-gray-400">${{ loan.get_total_principal_paid|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-blue-400">${{ loan.get_remaining_principal|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono font-semibold text-purple-300">
+                                        <i class="fa-regular fa-calendar-check text-[10px] mr-1 text-purple-400"></i>
+                                        {{ loan.get_next_installment_date|date:"M d, Y"|default:"All Repaid" }}
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if loan.status == 'ACTIVE' or loan.status == 'APPROVED' %}bg-emerald-950 text-emerald-400 border border-emerald-800/40{% else %}bg-gray-800 text-gray-400{% endif %}">
+                                            {{ loan.get_status_display }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8 bg-[#0b0e14] rounded-xl border border-[#222b3e]">
+                        <i class="fa-solid fa-hand-holding-dollar text-gray-600 text-2xl mb-2"></i>
+                        <p class="text-xs text-gray-400">No active loans currently outstanding under your member account.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Member Section 2: My Transactions Ledger -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-blue-950 text-blue-400 flex items-center justify-center border border-blue-800/40">
+                                <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white tracking-tight">My Recent Transactions & Deposits</h2>
+                                <p class="text-xs text-gray-400">Double-entry accounting journal entries posted for your account.</p>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded bg-[#0b0e14] border border-[#222b3e] text-gray-300">
+                            Total Records: <strong class="text-white">{{ my_transactions|length }}</strong>
+                        </span>
+                    </div>
+
+                    {% if my_transactions %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px] bg-[#0b0e14]">
+                                    <th class="py-3 px-3">Date</th>
+                                    <th class="py-3 px-3">Reference #</th>
+                                    <th class="py-3 px-3">Type</th>
+                                    <th class="py-3 px-3">Amount</th>
+                                    <th class="py-3 px-3">Payment Channel</th>
+                                    <th class="py-3 px-3">Description / Operator Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for trx in my_transactions %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 text-gray-400 whitespace-nowrap">{{ trx.created_at|date:"M d, Y H:i" }}</td>
+                                    <td class="py-3 px-3 font-mono font-semibold text-white">{{ trx.reference_number|default:trx.id }}</td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if trx.transaction_type == 'DEPOSIT' %}bg-emerald-950 text-emerald-400 border border-emerald-800/40{% elif trx.transaction_type == 'LOAN_REPAYMENT' %}bg-blue-950 text-blue-400 border border-blue-800/40{% else %}bg-purple-950 text-purple-400 border border-purple-800/40{% endif %}">
+                                            {{ trx.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-3 font-mono font-bold text-white">${{ trx.amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 text-gray-400">{{ trx.get_payment_method_display }}</td>
+                                    <td class="py-3 px-3 text-gray-300 max-w-xs truncate">{{ trx.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8 bg-[#0b0e14] rounded-xl border border-[#222b3e]">
+                        <i class="fa-solid fa-receipt text-gray-600 text-2xl mb-2"></i>
+                        <p class="text-xs text-gray-400">No transactions recorded yet for your account.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
 
                 <!-- 2 MAIN INTERACTIVE CHARTS (Exact Layout from Screenshot) -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -708,9 +1006,14 @@
                         </table>
                     </div>
                 </div>
+                {% endif %}
 
             </div>
 
+            <!-- ============================================================== -->
+            <!-- OPERATOR LOANS & TRANSACTIONS CONSOLE (Only for Admins/Ops)   -->
+            <!-- ============================================================== -->
+            {% if not is_member %}
             <!-- ============================================================== -->
             <!-- TAB 3: NEW PRIMARY LOAN APPLICATION (DARK FORM PANEL)          -->
             <!-- ============================================================== -->
@@ -1138,6 +1441,143 @@
                 </form>
 
             </div>
+            {% endif %}
+
+            <!-- ============================================================== -->
+            <!-- MEMBER TAB: MY LOANS & ADVANCES SCHEDULE                       -->
+            <!-- ============================================================== -->
+            {% if is_member %}
+            <div id="section-my-loans" class="tab-pane hidden space-y-6">
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Member Portal</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">My Loans & EMI</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">My Active Loans & EMI Schedule</h1>
+                    <p class="text-xs text-gray-400 mt-1">Individual loan details, remaining balances, interest rates, and upcoming installment dates.</p>
+                </div>
+
+                <!-- 3 Top Metric Badges -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase">Total Outstanding Loan Balance</span>
+                        <h3 class="text-2xl font-bold text-blue-400 mt-1 font-mono">${{ my_remaining_balance|floatformat:2 }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Total unpaid principal remaining</p>
+                    </div>
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase">Next Date of EMI</span>
+                        <h3 class="text-2xl font-bold text-purple-300 mt-1 font-mono">{{ next_emi_date|date:"M d, Y"|default:"None Due" }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Upcoming installment due date</p>
+                    </div>
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase">Monthly Installment Amount</span>
+                        <h3 class="text-2xl font-bold text-emerald-400 mt-1 font-mono">${{ next_emi_amount|floatformat:2 }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Standard monthly reducing-balance EMI</p>
+                    </div>
+                </div>
+
+                <!-- Active Loans Detailed Table -->
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-white mb-4">Individual Primary Loan Facilities</h3>
+                    {% if my_loans %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px] bg-[#0b0e14]">
+                                    <th class="py-3 px-3">Loan ID</th>
+                                    <th class="py-3 px-3">Principal Disbursed</th>
+                                    <th class="py-3 px-3">Interest Rate</th>
+                                    <th class="py-3 px-3">Tenure</th>
+                                    <th class="py-3 px-3">Monthly EMI</th>
+                                    <th class="py-3 px-3">Principal Paid</th>
+                                    <th class="py-3 px-3">Remaining Balance</th>
+                                    <th class="py-3 px-3">Next Date of EMI</th>
+                                    <th class="py-3 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for loan in my_loans %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 font-mono font-bold text-white">#{{ loan.id }}</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-emerald-400">${{ loan.principal_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono text-gray-300">{{ loan.interest_rate }}% p.a.</td>
+                                    <td class="py-3 px-3 text-gray-300">{{ loan.tenure_months }} mos</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-white">${{ loan.emi_amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono text-gray-400">${{ loan.get_total_principal_paid|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono font-bold text-blue-400">${{ loan.get_remaining_principal|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 font-mono font-semibold text-purple-300">
+                                        <i class="fa-regular fa-calendar-check text-[10px] mr-1 text-purple-400"></i>
+                                        {{ loan.get_next_installment_date|date:"M d, Y"|default:"Completed" }}
+                                    </td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40">{{ loan.get_status_display }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-gray-500 py-4">No active loans found under your member account.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- MEMBER TAB: MY TRANSACTIONS LEDGER                             -->
+            <div id="section-transactions" class="tab-pane hidden space-y-6">
+                <div>
+                    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                        <span>Dashboard</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span>Member Portal</span>
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-gray-200 font-medium">My Transactions</span>
+                    </nav>
+                    <h1 class="text-2xl font-bold text-white tracking-tight">My Transaction History</h1>
+                    <p class="text-xs text-gray-400 mt-1">Complete double-entry accounting records of your savings deposits and loan repayments.</p>
+                </div>
+
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    {% if my_transactions %}
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-[#1e2638] text-gray-400 font-semibold uppercase tracking-wider text-[10px] bg-[#0b0e14]">
+                                    <th class="py-3 px-3">Date</th>
+                                    <th class="py-3 px-3">Reference #</th>
+                                    <th class="py-3 px-3">Type</th>
+                                    <th class="py-3 px-3">Amount</th>
+                                    <th class="py-3 px-3">Channel</th>
+                                    <th class="py-3 px-3">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for trx in my_transactions %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-3 px-3 text-gray-400 whitespace-nowrap">{{ trx.created_at|date:"M d, Y H:i" }}</td>
+                                    <td class="py-3 px-3 font-mono font-semibold text-white">{{ trx.reference_number|default:trx.id }}</td>
+                                    <td class="py-3 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if trx.transaction_type == 'DEPOSIT' %}bg-emerald-950 text-emerald-400 border border-emerald-800/40{% elif trx.transaction_type == 'LOAN_REPAYMENT' %}bg-blue-950 text-blue-400 border border-blue-800/40{% else %}bg-purple-950 text-purple-400 border border-purple-800/40{% endif %}">
+                                            {{ trx.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-3 font-mono font-bold text-white">${{ trx.amount|floatformat:2 }}</td>
+                                    <td class="py-3 px-3 text-gray-400">{{ trx.get_payment_method_display }}</td>
+                                    <td class="py-3 px-3 text-gray-300">{{ trx.notes }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-xs text-gray-500 py-6 text-center">No transactions recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
 
             <!-- ============================================================== -->
             <!-- TAB 6: TRIAL BALANCE REPORT (DOUBLE-ENTRY FULL TABLE)          -->
@@ -1153,8 +1593,8 @@
                             <i class="fa-solid fa-chevron-right text-[10px]"></i>
                             <span class="text-gray-200 font-medium">Trial balance</span>
                         </nav>
-                        <h1 class="text-2xl font-bold text-white tracking-tight">Organization Trial Balance</h1>
-                        <p class="text-xs text-gray-400 mt-1">Generated dynamically from immutable transaction journal entries.</p>
+                        <h1 class="text-2xl font-bold text-white tracking-tight">{% if is_member %}My Individual Statement & Trial Balance{% else %}Organization Trial Balance{% endif %}</h1>
+                        <p class="text-xs text-gray-400 mt-1">{% if is_member %}Personal double-entry ledger verifying that your debits equal credits.{% else %}Generated dynamically from immutable transaction journal entries.{% endif %}</p>
                     </div>
 
                     <a href="/api/v1/reports/trial-balance/" target="_blank" class="bg-[#111622] border border-[#222b3e] hover:border-gray-600 text-gray-200 text-xs font-semibold px-3.5 py-2 rounded-lg flex items-center gap-2 transition">
@@ -1302,6 +1742,7 @@
                     </div>
 
                 </div>
+            </div>
 
             <!-- ============================================================== -->
             <!-- TAB 8: PROFILE & SECURITY (CHANGE PASSWORD & RESET PASSWORD)   -->
@@ -1319,6 +1760,85 @@
                     <h1 class="text-2xl font-bold text-white tracking-tight">Profile & Security Settings</h1>
                     <p class="text-xs text-gray-400 mt-1">Manage your member identity, update passwords, and secure your cooperative account.</p>
                 </div>
+
+                {% if current_user and current_user.must_change_password %}
+                <!-- First-Time Login Password Requirement Banner & Form -->
+                <div class="bg-gradient-to-r from-amber-950/90 via-[#181520] to-[#111622] border-2 border-amber-600/70 rounded-xl p-6 shadow-xl shadow-amber-950/40">
+                    <div class="flex items-start gap-4 mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl border border-amber-500/40 flex-shrink-0">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-700/60 uppercase tracking-wider">Mandatory Setup</span>
+                                <span class="text-xs text-amber-400 font-medium">First-Time Login Security</span>
+                            </div>
+                            <h2 class="text-lg font-bold text-white mt-1">Set Your Permanent Password</h2>
+                            <p class="text-xs text-amber-200/80 mt-1">
+                                Your account is currently using the initial default password assigned during registration. For security, please enter your temporary password and define your new permanent password below.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="/" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="first_time_password_change">
+                        <input type="hidden" name="username" value="{{ current_user.username }}">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-200 mb-1.5">
+                                    Current / Temporary Password <span class="text-amber-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="first_temp_pw" name="temp_password" required placeholder="e.g. Member@123" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('first_temp_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-gray-400 mt-1 block">Initial password given by administrator</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-200 mb-1.5">
+                                    New Permanent Password <span class="text-emerald-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="first_new_pw" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('first_new_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-gray-400 mt-1 block">Minimum 8 characters (letters & digits)</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-200 mb-1.5">
+                                    Confirm New Password <span class="text-emerald-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="first_confirm_pw" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('first_confirm_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-gray-400 mt-1 block">Must match the new password</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2">
+                            <p class="text-[11px] text-amber-300/80">
+                                <i class="fa-solid fa-lock mr-1 text-amber-400"></i>
+                                Once saved, this replaces your temporary password and enables full dashboard access.
+                            </p>
+                            <button type="submit" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold px-6 py-2.5 rounded-lg text-xs transition shadow-lg shadow-amber-950/50 flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Save & Activate Account</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
 
                 <!-- Panel 1: Member Identity Overview -->
                 <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
@@ -1370,6 +1890,68 @@
                     </div>
                 </div>
 
+                <!-- Member Live Balances & Statements -->
+                {% if current_user and current_user.role == 'MEMBER' %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">My Savings Balance</span>
+                        <h3 class="text-2xl font-bold text-emerald-400 mt-1">${{ member_savings_balance|floatformat:2 }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Deposited into SACCOS account</p>
+                    </div>
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Outstanding Loans</span>
+                        <h3 class="text-2xl font-bold text-blue-400 mt-1">${{ my_remaining_balance|floatformat:2 }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Remaining unpaid principal</p>
+                    </div>
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Active Primary Loans</span>
+                        <h3 class="text-2xl font-bold text-white mt-1">{{ my_loans|length }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Reducing balance EMI facilities</p>
+                    </div>
+                    <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-5 shadow-sm">
+                        <span class="text-xs text-gray-400 font-semibold uppercase tracking-wider">Emergency Advances</span>
+                        <h3 class="text-2xl font-bold text-amber-400 mt-1">{{ my_advances|length }}</h3>
+                        <p class="text-[11px] text-gray-500 mt-1">Interest-free 30-day assistance</p>
+                    </div>
+                </div>
+
+                {% if my_loans %}
+                <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-white mb-3">My Active Loans & Repayment Status</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-[#0b0e14] text-gray-400 uppercase tracking-wider border-b border-[#1e2638]">
+                                <tr>
+                                    <th class="py-2.5 px-3">Loan ID</th>
+                                    <th class="py-2.5 px-3">Disbursed Principal</th>
+                                    <th class="py-2.5 px-3">Rate</th>
+                                    <th class="py-2.5 px-3">Monthly EMI</th>
+                                    <th class="py-2.5 px-3">Principal Paid</th>
+                                    <th class="py-2.5 px-3">Remaining Balance</th>
+                                    <th class="py-2.5 px-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-[#1e2638]">
+                                {% for loan in my_loans %}
+                                <tr class="hover:bg-[#151c2a] transition">
+                                    <td class="py-2.5 px-3 font-mono font-bold text-white">#{{ loan.id }}</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-400">${{ loan.principal_amount }}</td>
+                                    <td class="py-2.5 px-3 font-mono text-gray-300">{{ loan.interest_rate }}%</td>
+                                    <td class="py-2.5 px-3 font-mono text-white">${{ loan.emi_amount }}</td>
+                                    <td class="py-2.5 px-3 font-mono text-gray-400">${{ loan.get_total_principal_paid }}</td>
+                                    <td class="py-2.5 px-3 font-mono font-bold text-blue-400">${{ loan.get_remaining_principal }}</td>
+                                    <td class="py-2.5 px-3">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/40">{{ loan.get_status_display }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
+
                 <!-- Panel 2: Change Password within Dashboard (In-Profile) -->
                 <div class="bg-[#111622] border border-[#1e2638] rounded-xl p-6 shadow-sm">
                     <div class="flex items-center gap-3 mb-5">
@@ -1390,7 +1972,7 @@
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">Member Username <span class="text-rose-500">*</span></label>
                                 {% if current_user %}
-                                <input type="text" name="username" readonly value="{{ current_user.username }}" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-400 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <input type="text" name="username" readonly value="{{ current_user.username }}" class="w-full bg-[#0b0e14] border border-[#222b3e] text-gray-400 text-xs rounded-lg px-3.5 py-2.5 outline-none font-mono">
                                 {% else %}
                                 <select name="username" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
                                     {% for m in members %}
@@ -1402,17 +1984,32 @@
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">Current / Temporary Password <span class="text-rose-500">*</span></label>
-                                <input type="password" name="old_password" required placeholder="Enter current password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <div class="relative">
+                                    <input type="password" id="change_old_pw" name="old_password" required placeholder="Enter current password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('change_old_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">New Password <span class="text-rose-500">*</span></label>
-                                <input type="password" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <div class="relative">
+                                    <input type="password" id="change_new_pw" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('change_new_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">Confirm New Password <span class="text-rose-500">*</span></label>
-                                <input type="password" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <div class="relative">
+                                    <input type="password" id="change_confirm_pw" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('change_confirm_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1453,12 +2050,22 @@
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">New Password <span class="text-rose-500">*</span></label>
-                                <input type="password" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <div class="relative">
+                                    <input type="password" id="reset_new_pw" name="new_password" required minlength="8" placeholder="At least 8 characters" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('reset_new_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-semibold text-gray-300 mb-1.5">Confirm New Password <span class="text-rose-500">*</span></label>
-                                <input type="password" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 outline-none">
+                                <div class="relative">
+                                    <input type="password" id="reset_confirm_pw" name="confirm_password" required minlength="8" placeholder="Re-type new password" class="w-full bg-[#0b0e14] border border-[#222b3e] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-gray-100 text-xs rounded-lg px-3.5 py-2.5 pr-10 outline-none">
+                                    <button type="button" onclick="togglePasswordVisibility('reset_confirm_pw', this)" class="absolute right-2.5 top-2.5 text-gray-400 hover:text-white transition">
+                                        <i class="fa-regular fa-eye text-xs"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1483,6 +2090,25 @@
 
     <!-- TAB SWITCHING & CHART.JS SCRIPTS -->
     <script>
+        function togglePasswordVisibility(inputId, btnEl) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const icon = btnEl ? btnEl.querySelector('i') : null;
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+
         function showTab(tabName) {
             if (tabName === 'new-customer') tabName = 'new-member';
             // Hide all tab panes
@@ -1518,11 +2144,15 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Live EMI preview for loan application form
+        // Live EMI preview for loan application form (null-safe)
         function calculatePreviewEMI() {
-            const p = parseFloat(document.getElementById('loan_principal').value) || 0;
-            const rAnnual = parseFloat(document.getElementById('loan_rate').value) || 0;
-            const n = parseInt(document.getElementById('loan_tenure').value) || 1;
+            const pEl = document.getElementById('loan_principal');
+            if (!pEl) return;
+            const p = parseFloat(pEl.value) || 0;
+            const rEl = document.getElementById('loan_rate');
+            const rAnnual = rEl ? (parseFloat(rEl.value) || 0) : 0;
+            const nEl = document.getElementById('loan_tenure');
+            const n = nEl ? (parseInt(nEl.value) || 1) : 1;
 
             if (p <= 0 || n <= 0) return;
 
@@ -1536,11 +2166,13 @@
             }
 
             const total = emi * n;
-            document.getElementById('preview_emi').innerText = '$' + emi.toFixed(2);
-            document.getElementById('preview_total').innerText = '$' + total.toFixed(2);
+            const emiEl = document.getElementById('preview_emi');
+            const totalEl = document.getElementById('preview_total');
+            if (emiEl) emiEl.innerText = '$' + emi.toFixed(2);
+            if (totalEl) totalEl.innerText = '$' + total.toFixed(2);
         }
 
-        // Live deposit preview & quick preset selectors
+        // Live deposit preview & quick preset selectors (null-safe)
         function setDepositAmount(val) {
             const input = document.getElementById('deposit_amount_input');
             if (input) {
@@ -1558,11 +2190,15 @@
             if (creditEl) creditEl.innerText = '$' + amt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Full Amortization Calculator
+        // Full Amortization Calculator (null-safe)
         function runFullCalculator() {
-            const p = parseFloat(document.getElementById('calc_p').value) || 0;
-            const rAnnual = parseFloat(document.getElementById('calc_r').value) || 0;
-            const n = parseInt(document.getElementById('calc_n').value) || 1;
+            const pEl = document.getElementById('calc_p');
+            if (!pEl) return;
+            const p = parseFloat(pEl.value) || 0;
+            const rEl = document.getElementById('calc_r');
+            const rAnnual = rEl ? (parseFloat(rEl.value) || 0) : 0;
+            const nEl = document.getElementById('calc_n');
+            const n = nEl ? (parseInt(nEl.value) || 1) : 1;
 
             const rMonthly = (rAnnual / 100) / 12;
             let emi = (p * rMonthly * Math.pow(1 + rMonthly, n)) / (Math.pow(1 + rMonthly, n) - 1);
@@ -1571,9 +2207,12 @@
             const totalRepayment = emi * n;
             const totalInterest = totalRepayment - p;
 
-            document.getElementById('res_emi').innerText = '$' + emi.toFixed(2);
-            document.getElementById('res_interest').innerText = '$' + totalInterest.toFixed(2);
-            document.getElementById('res_total').innerText = '$' + totalRepayment.toFixed(2);
+            const resEmi = document.getElementById('res_emi');
+            const resInterest = document.getElementById('res_interest');
+            const resTotal = document.getElementById('res_total');
+            if (resEmi) resEmi.innerText = '$' + emi.toFixed(2);
+            if (resInterest) resInterest.innerText = '$' + totalInterest.toFixed(2);
+            if (resTotal) resTotal.innerText = '$' + totalRepayment.toFixed(2);
 
             let bal = p;
             let rowsHtml = '';
@@ -1594,7 +2233,8 @@
                     </tr>
                 `;
             }
-            document.getElementById('amortization_body').innerHTML = rowsHtml;
+            const tb = document.getElementById('amortization_body');
+            if (tb) tb.innerHTML = rowsHtml;
         }
 
         // Initialize Charts and Calculator on DOM load
@@ -1602,6 +2242,17 @@
             runFullCalculator();
             calculatePreviewEMI();
             updateDepositPreview();
+
+            // Auto-switch to profile tab if user must change password
+            {% if current_user and current_user.must_change_password %}
+            showTab('profile');
+            {% endif %}
+
+            // Check URL hash for direct tab linking
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById('section-' + hash)) {
+                showTab(hash);
+            }
 
             // 1. Revenue Chart (Apex Style with Smooth Spline curve)
             const ctxRev = document.getElementById('revenueChart');

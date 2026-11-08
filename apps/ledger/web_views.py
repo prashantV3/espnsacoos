@@ -47,10 +47,12 @@ def dashboard_ui_view(request):
                     if not username:
                         username = email.split('@')[0] if email else f"member_{User.objects.count() + 1}"
 
+                    initial_password = request.POST.get('initial_password', '').strip() or 'Member@123'
+
                     user = User.objects.create_user(
                         username=username,
                         email=email,
-                        password='Member@123',
+                        password=initial_password,
                         first_name=first_name,
                         last_name=last_name,
                         phone_number=phone,
@@ -58,7 +60,11 @@ def dashboard_ui_view(request):
                         role=User.Role.MEMBER
                     )
                     action_status = 'success'
-                    action_message = f"Member {user.get_full_name() or user.username} registered successfully! (Member ID: {user.member_id})"
+                    action_message = (
+                        f"Member {user.get_full_name() or user.username} registered successfully! "
+                        f"(Member ID: {user.member_id} | Default Password: {initial_password} — "
+                        f"first-time password change will be enforced upon first login)"
+                    )
 
                 # 2. New Primary Loan Application
                 elif action == 'apply_loan':
@@ -119,15 +125,19 @@ def dashboard_ui_view(request):
                     action_status = 'success'
                     action_message = f"Emergency Advance #{advance.id} of ${amount:,.2f} granted to {borrower.username}! 30-day grace period active."
 
-                # 4. Record Payment / Double-Entry Deposit
-                elif action == 'record_payment':
+                # 4. Record Payment / Member Savings Deposit into Organization Account
+                elif action in ['record_payment', 'record_deposit']:
                     user_id = request.POST.get('user_id')
-                    trx_type = request.POST.get('transaction_type')
+                    trx_type = request.POST.get('transaction_type', Transaction.TransactionType.DEPOSIT)
+                    if action == 'record_deposit':
+                        trx_type = Transaction.TransactionType.DEPOSIT
+
                     amount = Decimal(request.POST.get('amount', '0'))
-                    description = request.POST.get('description', '')
+                    description = request.POST.get('description', '').strip()
                     method = request.POST.get('payment_method', Transaction.PaymentMethod.BANK_TRANSFER)
+                    ref_no = request.POST.get('reference_number', '').strip()
                     member = User.objects.get(id=user_id)
-                    admin_user = User.objects.filter(role__in=[User.Role.ADMIN, User.Role.SUPERUSER]).first()
+                    admin_user = request.user if (request.user.is_authenticated and request.user.is_admin_operator) else User.objects.filter(role__in=[User.Role.ADMIN, User.Role.SUPERUSER]).first()
 
                     target_loan = None
                     target_emergency = None
@@ -159,12 +169,21 @@ def dashboard_ui_view(request):
                         amount=amount,
                         principal_portion=principal_portion,
                         interest_portion=interest_portion,
-                        notes=description or f"Transaction recorded via Web Console",
+                        reference_number=ref_no or None,
+                        notes=description or (
+                            f"Member savings deposit from {member.get_full_name() or member.username} into organization account"
+                            if trx_type == Transaction.TransactionType.DEPOSIT
+                            else f"Transaction recorded via Web Console"
+                        ),
                         payment_method=method,
                         created_by=admin_user or member
                     )
-                    action_status = 'success'
-                    action_message = f"Payment of ${amount:,.2f} recorded! Double-entry ledger generated automatically with balanced DR/CR."
+                    if trx_type == Transaction.TransactionType.DEPOSIT:
+                        action_status = 'success'
+                        action_message = f"Deposit of ${amount:,.2f} recorded for {member.get_full_name() or member.username}! Funds deposited into ESPN SACCOS organization account (DR 1010 Cash & Bank / CR 2010 Member Savings)."
+                    else:
+                        action_status = 'success'
+                        action_message = f"Payment of ${amount:,.2f} recorded! Double-entry ledger generated automatically with balanced DR/CR."
 
                 # 5. Change Password within Dashboard Profile
                 elif action == 'change_password':
@@ -289,6 +308,44 @@ def dashboard_ui_view(request):
     # 6. Global Settings
     settings_obj = GlobalSettings.get_settings()
 
+    # 7. Member-Specific Context (when a member is signed in)
+    member_savings_balance = Decimal('0.00')
+    my_loans = []
+    my_advances = []
+    my_transactions = []
+    my_remaining_balance = Decimal('0.00')
+    next_emi_date = None
+    next_emi_amount = Decimal('0.00')
+    is_member = False
+
+    current_user = request.user if request.user.is_authenticated else None
+    if current_user and current_user.role == User.Role.MEMBER:
+        is_member = True
+        from django.db.models import Sum
+        dep_sum = Transaction.objects.filter(
+            user=current_user,
+            transaction_type=Transaction.TransactionType.DEPOSIT
+        ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        wth_sum = Transaction.objects.filter(
+            user=current_user,
+            transaction_type=Transaction.TransactionType.WITHDRAWAL
+        ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
+        member_savings_balance = dep_sum - wth_sum
+
+        my_loans = PrimaryLoan.objects.filter(borrower=current_user).order_by('-created_at')
+        my_advances = EmergencyAdvance.objects.filter(borrower=current_user).order_by('-created_at')
+        my_transactions = Transaction.objects.filter(user=current_user).order_by('-created_at')
+        my_remaining_balance = sum([l.get_remaining_principal() for l in my_loans], Decimal('0.00'))
+
+        active_primary = my_loans.filter(status__in=[PrimaryLoan.Status.ACTIVE, PrimaryLoan.Status.APPROVED]).first()
+        if active_primary:
+            next_emi_date = active_primary.get_next_installment_date()
+            next_emi_amount = active_primary.emi_amount or Decimal('0.00')
+
+        # Swap in the member's individual double-entry trial balance and transactions
+        tb = TrialBalanceReport.generate_member_trial_balance(current_user)
+        recent_transactions = my_transactions
+
     # Chart data preparation
     chart_tb_labels = [acc['name'] for acc in tb['accounts']]
     chart_tb_debits = [acc['total_debits'] for acc in tb['accounts']]
@@ -329,7 +386,15 @@ def dashboard_ui_view(request):
         'today': date.today(),
         'action_status': action_status,
         'action_message': action_message,
-        'current_user': request.user if request.user.is_authenticated else None,
+        'current_user': current_user,
+        'is_member': is_member,
+        'next_emi_date': next_emi_date,
+        'next_emi_amount': float(next_emi_amount),
+        'member_savings_balance': float(member_savings_balance),
+        'my_loans': my_loans,
+        'my_advances': my_advances,
+        'my_transactions': my_transactions,
+        'my_remaining_balance': float(my_remaining_balance),
     }
 
     return render(request, 'dashboard.html', context)
